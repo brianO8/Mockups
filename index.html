@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Time Off Request</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        },
+                        accent: {
+                            500: '#84cc16',
+                            600: '#65a30d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 font-sans min-h-screen flex justify-center items-center p-0 sm:p-4 text-slate-800 antialiased">
+
+    <!-- Mobile Device Container (iPhone 15 aspect ratio mockup) -->
+    <div class="w-full max-w-[412px] h-[100vh] sm:h-[870px] bg-slate-50 sm:rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative border-0 sm:border-[8px] border-slate-800">
+
+        <!-- Mobile Status Bar -->
+        <div class="bg-slate-900 text-white px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold select-none z-30 shrink-0">
+            <span>9:41</span>
+            <div class="w-20 h-4 bg-slate-950 rounded-full mx-auto absolute left-0 right-0 top-2 hidden sm:block"></div>
+            <div class="flex items-center space-x-1.5">
+                <i class="fa-solid fa-signal text-[10px]"></i>
+                <i class="fa-solid fa-wifi text-[10px]"></i>
+                <i class="fa-solid fa-battery-full text-xs"></i>
+            </div>
+        </div>
+
+        <!-- App Header Bar -->
+        <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-20 shrink-0">
+            <button class="text-slate-600 hover:text-slate-900 text-sm font-medium flex items-center gap-1.5 transition-colors">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+                <span>Back</span>
+            </button>
+            <h1 class="text-base font-bold text-slate-900 tracking-tight">Request Time Off</h1>
+            <button onclick="resetToDefaults()" class="text-brand-600 hover:text-brand-700 text-xs font-semibold">
+                Reset
+            </button>
+        </div>
+
+        <!-- Scrollable Content Viewport -->
+        <div id="scroll-container" class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3.5 pb-28">
+
+            <!-- Card 1: Interactive Date Range & Balances -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3.5">
+
+                <!-- Date Range Header & Badge -->
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block mb-0.5">Date Range</span>
+                        <div class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-regular fa-calendar-days text-brand-500"></i>
+                            <span id="date-range-display-text">Mon, Nov 2 – Sun, Nov 8, 2026</span>
+                        </div>
+                    </div>
+                    <span id="total-days-badge" class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full border border-brand-100">
+                        7 Days
+                    </span>
+                </div>
+
+                <!-- Editable Date Range Input Pickers -->
+                <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                    <div>
+                        <label class="text-[10px] font-semibold text-slate-500 block mb-1">Start Date</label>
+                        <input type="date" id="input-start-date" value="2026-11-02" onchange="handleDateRangeChange()" class="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-semibold text-slate-500 block mb-1">End Date</label>
+                        <input type="date" id="input-end-date" value="2026-11-08" onchange="handleDateRangeChange()" class="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- Balances Section -->
+                <div>
+                    <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block mb-1.5">Available Accrual Balances</span>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <div id="badge-pto" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
+                            <span class="text-[10px] font-semibold text-slate-500 uppercase block">PTO</span>
+                            <span id="bal-pto" class="text-xs font-bold text-slate-900">40.0h</span>
+                        </div>
+                        <div id="badge-personal" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
+                            <span class="text-[10px] font-semibold text-slate-500 uppercase block">Personal</span>
+                            <span id="bal-personal" class="text-xs font-bold text-slate-900">16.25h</span>
+                        </div>
+                        <div id="badge-sick" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
+                            <span class="text-[10px] font-semibold text-slate-500 uppercase block">Sick</span>
+                            <span id="bal-sick" class="text-xs font-bold text-slate-900">24.0h</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Breakdown Cards Stack -->
+            <div class="space-y-2.5">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Daily Breakdown</span>
+                    <span id="daily-breakdown-count-label" class="text-[11px] text-slate-500 font-medium">7 Calendar Days</span>
+                </div>
+
+                <!-- Daily Cards Container -->
+                <div id="daily-cards-container" class="space-y-2.5">
+                    <!-- Dynamic Cards Rendered Here -->
+                </div>
+            </div>
+
+            <!-- Request Recap Section -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-receipt text-slate-400"></i>
+                        Request Recap
+                    </span>
+                    <span id="summary-total-absence" class="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                        Total Absence: 7 Days
+                    </span>
+                </div>
+
+                <!-- Charged Items Breakdown -->
+                <div class="space-y-2 text-xs">
+                    <div id="summary-pto-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">PTO Charged:</span>
+                        <div class="text-right">
+                            <span id="summary-pto-charged" class="font-bold text-slate-900">24.0 hrs</span>
+                            <span id="summary-pto-rem" class="text-[11px] text-slate-500 block">(16.0 hrs remaining)</span>
+                        </div>
+                    </div>
+
+                    <div id="summary-personal-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Personal Charged:</span>
+                        <div class="text-right">
+                            <span id="summary-personal-charged" class="font-bold text-slate-900">12.0 hrs</span>
+                            <span id="summary-personal-rem" class="text-[11px] text-slate-500 block">(4.25 hrs remaining)</span>
+                        </div>
+                    </div>
+
+                    <div id="summary-sick-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Sick Charged:</span>
+                        <div class="text-right">
+                            <span id="summary-sick-charged" class="font-bold text-slate-900">0.0 hrs</span>
+                            <span id="summary-sick-rem" class="text-[11px] text-slate-500 block">(24.0 hrs remaining)</span>
+                        </div>
+                    </div>
+
+                    <div id="summary-unpaid-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Unpaid / Regular Off:</span>
+                        <span id="summary-unpaid-days" class="font-bold text-slate-900">2 Days</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sticky Footer with Pill Submit Button -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200/80 p-4 shadow-lg z-30">
+            <button id="submit-btn" onclick="handleSubmit()" class="w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-slate-950 font-bold py-3.5 px-6 rounded-full shadow-lg shadow-accent-500/20 flex items-center justify-center gap-2 transition-all duration-150 uppercase tracking-wider text-sm">
+                <span>Submit Request</span>
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const INITIAL_BALANCES = {
+            PTO: 40.0,
+            PERSONAL: 16.25,
+            SICK: 24.0
+        };
+
+        const STANDARD_SHIFT_HOURS = 8.0;
+
+        // Map storing day details keyed by date string (YYYY-MM-DD)
+        let daysStore = {};
+
+        const timeOptions = [
+            "06:00 AM", "07:00 AM", "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM",
+            "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"
+        ];
+
+        // Seed initial preset mockup dates (Nov 2 - Nov 8, 2026)
+        function initInitialDays() {
+            daysStore = {
+                '2026-11-02': { type: 'PTO', partial: false, start: '08:00 AM', stop: '05:00 PM', hours: 8.0 },
+                '2026-11-03': { type: 'PTO', partial: false, start: '08:00 AM', stop: '05:00 PM', hours: 8.0 },
+                '2026-11-04': { type: 'UNPAID', partial: false, start: '08:00 AM', stop: '05:00 PM', hours: 0.0 },
+                '2026-11-05': { type: 'UNPAID', partial: false, start: '08:00 AM', stop: '05:00 PM', hours: 0.0 },
+                '2026-11-06': { type: 'PTO', partial: false, start: '08:00 AM', stop: '05:00 PM', hours: 8.0 },
+                '2026-11-07': { type: 'PERSONAL', partial: false, start: '08:00 AM', stop: '05:00 PM', hours: 8.0 },
+                '2026-11-08': { type: 'PERSONAL', partial: true, start: '10:00 AM', stop: '02:00 PM', hours: 4.0 }
+            };
+        }
+
+        // Format Date string YYYY-MM-DD to Display (e.g. "Mon, Nov 2")
+        function formatDateLabel(dateObj) {
+            return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
+        // Date Range Change Handler
+        function handleDateRangeChange() {
+            const startVal = document.getElementById('input-start-date').value;
+            const endVal = document.getElementById('input-end-date').value;
+
+            if (!startVal || !endVal) return;
+
+            const startDate = new Date(startVal + 'T00:00:00');
+            const endDate = new Date(endVal + 'T00:00:00');
+
+            if (endDate < startDate) {
+                alert("End Date cannot be earlier than Start Date.");
+                document.getElementById('input-end-date').value = startVal;
+                return handleDateRangeChange();
+            }
+
+            // Calculate active date list
+            const dateList = [];
+            let curr = new Date(startDate);
+            while (curr <= endDate) {
+                const dateKey = curr.toISOString().split('T')[0];
+                dateList.push({
+                    dateKey: dateKey,
+                    dateObj: new Date(curr)
+                });
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            // Ensure store has data for all new dates
+            dateList.forEach(item => {
+                if (!daysStore[item.dateKey]) {
+                    const dayOfWeek = item.dateObj.getDay(); // 0 = Sun, 6 = Sat
+                    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                    daysStore[item.dateKey] = {
+                        type: isWeekend ? 'UNPAID' : 'PTO',
+                        partial: false,
+                        start: '08:00 AM',
+                        stop: '05:00 PM',
+                        hours: isWeekend ? 0.0 : STANDARD_SHIFT_HOURS
+                    };
+                }
+            });
+
+            // Update Header Display Text & Badges
+            const startFormatted = formatDateLabel(startDate);
+            const endFormatted = formatDateLabel(endDate);
+            const yearStr = endDate.getFullYear();
+
+            document.getElementById('date-range-display-text').textContent = `${startFormatted} – ${endFormatted}, ${yearStr}`;
+            document.getElementById('total-days-badge').textContent = `${dateList.length} Days`;
+            document.getElementById('daily-breakdown-count-label').textContent = `${dateList.length} Calendar Days`;
+            document.getElementById('summary-total-absence').textContent = `Total Absence: ${dateList.length} Days`;
+
+            renderCards(dateList);
+        }
+
+        // Render Cards dynamically based on active date list
+        function renderCards(dateList) {
+            const container = document.getElementById('daily-cards-container');
+            container.innerHTML = '';
+
+            dateList.forEach(item => {
+                const dateKey = item.dateKey;
+                const dayData = daysStore[dateKey];
+                const dayLabel = formatDateLabel(item.dateObj);
+                const isPaidType = ['PTO', 'PERSONAL', 'SICK'].includes(dayData.type);
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/90 space-y-2.5 transition-all";
+
+                card.innerHTML = `
+                    <!-- ROW 1: Date Label & Status Badge -->
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-900">${dayLabel}</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            dayData.type === 'UNPAID' ? 'bg-slate-100 text-slate-500' : 'bg-brand-50 text-brand-700'
+                        }">
+                            ${dayData.type === 'UNPAID' ? 'Off / Unpaid' : 'Paid Absence'}
+                        </span>
+                    </div>
+
+                    <!-- ROW 2: Pay Type Dropdown (Excludes Working Shift) -->
+                    <div class="relative">
+                        <select onchange="updatePayType('${dateKey}', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white appearance-none transition-all pr-8">
+                            <option value="PTO" ${dayData.type === 'PTO' ? 'selected' : ''}>PTO</option>
+                            <option value="PERSONAL" ${dayData.type === 'PERSONAL' ? 'selected' : ''}>PERSONAL</option>
+                            <option value="SICK" ${dayData.type === 'SICK' ? 'selected' : ''}>SICK</option>
+                            <option value="UNPAID" ${dayData.type === 'UNPAID' ? 'selected' : ''}>UNPAID TIME OFF</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                    </div>
+
+                    <!-- ROW 3: Partial Checkbox + Editable/Auto-Calc Hours -->
+                    <div class="pt-0.5 flex items-center justify-between gap-2">
+                        <!-- Partial Day Checkbox -->
+                        <label class="flex items-center gap-1.5 cursor-pointer select-none shrink-0">
+                            <input type="checkbox" ${dayData.partial ? 'checked' : ''} onchange="togglePartialDay('${dateKey}', this.checked)" class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 accent-brand-600">
+                            <span class="text-xs font-medium text-slate-600">Partial Day</span>
+                        </label>
+
+                        <!-- Dynamic Time Pickers & Hours Field -->
+                        <div class="flex items-center gap-1.5 justify-end flex-1 min-w-0">
+                            ${dayData.partial ? `
+                                <!-- Start/Stop Time Pickers -->
+                                <div class="flex items-center gap-1 text-[11px] bg-slate-50 border border-slate-200 rounded-lg p-1 animate-fadeIn">
+                                    <select onchange="updateTime('${dateKey}', 'start', this.value)" class="bg-transparent text-slate-700 font-semibold focus:outline-none text-[10px]">
+                                        ${timeOptions.map(t => `<option value="${t}" ${dayData.start === t ? 'selected' : ''}>${t.replace(':00', '')}</option>`).join('')}
+                                    </select>
+                                    <span class="text-slate-300 font-bold">-</span>
+                                    <select onchange="updateTime('${dateKey}', 'stop', this.value)" class="bg-transparent text-slate-700 font-semibold focus:outline-none text-[10px]">
+                                        ${timeOptions.map(t => `<option value="${t}" ${dayData.stop === t ? 'selected' : ''}>${t.replace(':00', '')}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            <!-- Hours Field: Editable when Partial unchecked, Read-only when Partial checked -->
+                            <div class="text-right shrink-0">
+                                <label class="text-[10px] font-medium text-slate-400 uppercase block leading-none mb-0.5">Hours</label>
+                                <input type="number" step="0.5" min="0" max="24" value="${dayData.hours}" ${dayData.partial ? 'readonly' : ''} onchange="updateCustomHours('${dateKey}', this.value)" class="w-16 text-right font-bold text-xs px-1.5 py-0.5 rounded border ${
+                                    dayData.partial ? 'bg-slate-100 text-slate-500 border-slate-200' : 'bg-white text-slate-900 border-slate-300 focus:ring-1 focus:ring-brand-500'
+                                }">
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            recalculateTotals(dateList);
+        }
+
+        // Toggle Partial Day
+        function togglePartialDay(dateKey, isPartial) {
+            daysStore[dateKey].partial = isPartial;
+            if (isPartial) {
+                daysStore[dateKey].start = '10:00 AM';
+                daysStore[dateKey].stop = '02:00 PM';
+                calculateDayHours(dateKey);
+            } else {
+                daysStore[dateKey].hours = (daysStore[dateKey].type === 'UNPAID') ? 0.0 : STANDARD_SHIFT_HOURS;
+            }
+            handleDateRangeChange();
+        }
+
+        // Update Pay Type
+        function updatePayType(dateKey, type) {
+            daysStore[dateKey].type = type;
+            if (type === 'UNPAID') {
+                daysStore[dateKey].hours = 0.0;
+            } else {
+                if (daysStore[dateKey].partial) {
+                    calculateDayHours(dateKey);
+                } else {
+                    daysStore[dateKey].hours = STANDARD_SHIFT_HOURS;
+                }
+            }
+            handleDateRangeChange();
+        }
+
+        // Update Partial Day Start/Stop Time
+        function updateTime(dateKey, field, value) {
+            daysStore[dateKey][field] = value;
+            calculateDayHours(dateKey);
+            handleDateRangeChange();
+        }
+
+        // Custom Hours Input Change (When Partial is Unchecked)
+        function updateCustomHours(dateKey, val) {
+            const hrs = parseFloat(val);
+            daysStore[dateKey].hours = isNaN(hrs) ? 0.0 : Math.max(0, hrs);
+            handleDateRangeChange();
+        }
+
+        // Calculate hours based on Start & Stop time
+        function calculateDayHours(dateKey) {
+            const day = daysStore[dateKey];
+            if (day.type === 'UNPAID') {
+                day.hours = 0.0;
+                return;
+            }
+
+            const parseTime = (timeStr) => {
+                const [time, modifier] = timeStr.split(' ');
+                let [hours] = time.split(':').map(Number);
+                if (modifier === 'PM' && hours < 12) hours += 12;
+                if (modifier === 'AM' && hours === 12) hours = 0;
+                return hours;
+            };
+
+            const startH = parseTime(day.start);
+            const stopH = parseTime(day.stop);
+            let diff = stopH - startH;
+
+            if (diff <= 0) diff = 1.0;
+            day.hours = parseFloat(diff.toFixed(1));
+        }
+
+        // Recalculate summary totals & check available balances
+        function recalculateTotals(dateList) {
+            let charged = { PTO: 0.0, PERSONAL: 0.0, SICK: 0.0 };
+            let unpaidDays = 0;
+
+            dateList.forEach(item => {
+                const day = daysStore[item.dateKey];
+                if (charged[day.type] !== undefined) {
+                    charged[day.type] += day.hours;
+                } else if (day.type === 'UNPAID') {
+                    unpaidDays++;
+                }
+            });
+
+            const remPTO = INITIAL_BALANCES.PTO - charged.PTO;
+            const remPersonal = INITIAL_BALANCES.PERSONAL - charged.PERSONAL;
+            const remSick = INITIAL_BALANCES.SICK - charged.SICK;
+
+            document.getElementById('summary-pto-charged').textContent = `${charged.PTO.toFixed(1)} hrs`;
+            document.getElementById('summary-pto-rem').textContent = `(${remPTO.toFixed(2)} hrs remaining)`;
+
+            document.getElementById('summary-personal-charged').textContent = `${charged.PERSONAL.toFixed(1)} hrs`;
+            document.getElementById('summary-personal-rem').textContent = `(${remPersonal.toFixed(2)} hrs remaining)`;
+
+            document.getElementById('summary-sick-charged').textContent = `${charged.SICK.toFixed(1)} hrs`;
+            document.getElementById('summary-sick-rem').textContent = `(${remSick.toFixed(2)} hrs remaining)`;
+
+            document.getElementById('summary-unpaid-days').textContent = `${unpaidDays} Days`;
+
+            updateBadgeState('badge-pto', remPTO);
+            updateBadgeState('badge-personal', remPersonal);
+            updateBadgeState('badge-sick', remSick);
+        }
+
+        function updateBadgeState(badgeId, remaining) {
+            const badge = document.getElementById(badgeId);
+            if (remaining < 0) {
+                badge.className = "bg-rose-50 border border-rose-300 rounded-xl p-2 text-center text-rose-700 animate-pulse";
+            } else {
+                badge.className = "bg-slate-50 border border-slate-200 rounded-xl p-2 text-center text-slate-800";
+            }
+        }
+
+        // Reset All Controls
+        function resetToDefaults() {
+            document.getElementById('input-start-date').value = '2026-11-02';
+            document.getElementById('input-end-date').value = '2026-11-08';
+            initInitialDays();
+            handleDateRangeChange();
+        }
+
+        // Form Submit Handler
+        function handleSubmit() {
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-sm"></i><span>Submitting...</span>`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.className = "w-full bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-full shadow-lg flex items-center justify-center gap-2 uppercase tracking-wider text-sm";
+                btn.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i><span>Request Submitted!</span>`;
+
+                setTimeout(() => {
+                    btn.className = "w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-slate-950 font-bold py-3.5 px-6 rounded-full shadow-lg shadow-accent-500/20 flex items-center justify-center gap-2 transition-all duration-150 uppercase tracking-wider text-sm";
+                    btn.innerHTML = `<span>Submit Request</span><i class="fa-solid fa-paper-plane text-xs"></i>`;
+                    btn.disabled = false;
+                }, 2500);
+            }, 1000);
+        }
+
+        // On Application Load
+        window.onload = function() {
+            initInitialDays();
+            handleDateRangeChange();
+        };
+    </script>
+</body>
+</html>
