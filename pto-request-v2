@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile PTO Request Mockup</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --bg-gray: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0f172a; display: flex; justify-content: center; padding: 20px 10px; min-height: 100vh; }
+
+    .phone-container {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--bg-gray);
+      border-radius: 32px;
+      border: 8px solid #334155;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-header {
+      background: #ffffff;
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    .phone-header h1 { font-size: 1.15rem; color: var(--text-dark); font-weight: 700; }
+
+    .content-scroll { padding: 12px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Accrual Badges Header */
+    .accrual-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .accrual-pill {
+      background: var(--bg-gray);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+    }
+    .accrual-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .accrual-value { font-size: 0.95rem; font-weight: 800; color: var(--text-dark); margin-top: 2px; }
+
+    /* Date Range */
+    .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .input-group { display: flex; flex-direction: column; gap: 4px; }
+    .input-group label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      background: #ffffff;
+    }
+
+    /* Segmented Strategy Switcher */
+    .segment-control {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+    .segment-btn {
+      padding: 8px 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+    }
+    .segment-btn.active {
+      background: #ffffff;
+      color: var(--text-dark);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Compact Inputs Grid */
+    .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+
+    /* Daily Cards Stack */
+    .day-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .day-card-header { display: flex; justify-content: space-between; align-items: center; }
+    .day-date { font-size: 0.85rem; font-weight: 700; color: var(--text-dark); }
+    .day-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+    .day-badge.paid { background: #dbeafe; color: #1e40af; }
+    .day-badge.off { background: #f1f5f9; color: #475569; }
+    .day-badge.unselected { background: #fef3c7; color: #92400e; }
+
+    .day-controls { display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; align-items: center; }
+    .partial-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); padding-top: 4px; border-top: 1px solid #f1f5f9; }
+    .time-pickers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; margin-top: 4px; }
+
+    /* Request Recap Card */
+    .recap-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .recap-card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+    .recap-card-title .badge-span {
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+    .recap-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .recap-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+    .recap-row-label { font-weight: 600; color: var(--text-dark); }
+    .recap-row-value { text-align: right; }
+    .recap-main-val { font-weight: 800; color: var(--text-dark); display: block; }
+    .recap-sub-val { font-size: 0.68rem; color: var(--text-muted); }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 24px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .badge-pill { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
+
+    /* Hidden Utility Class for Progressive Disclosure */
+    .step-hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="phone-container">
+  <div class="phone-header">
+    <h1>Time Off Request</h1>
+  </div>
+
+  <div class="content-scroll">
+    <!-- STAGE 1: DATE RANGE SELECTION -->
+    <div class="card">
+      <div class="card-title">
+        <span>1. Date Range</span>
+        <span class="badge-pill" id="badge-total-days">-- Days</span>
+      </div>
+      <div class="date-row">
+        <div class="input-group">
+          <label for="start-date">Start Date</label>
+          <input type="date" id="start-date">
+        </div>
+        <div class="input-group">
+          <label for="end-date">End Date</label>
+          <input type="date" id="end-date">
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE 2: AVAILABLE ACCRUAL BALANCES -->
+    <div class="card step-hidden" id="step-balances">
+      <div class="card-title">Available Accrual Balances</div>
+      <div class="accrual-grid">
+        <div class="accrual-pill">
+          <div class="accrual-label">PTO</div>
+          <div class="accrual-value">40.00h</div>
+        </div>
+        <div class="accrual-pill">
+          <div class="accrual-label">Personal</div>
+          <div class="accrual-value">16.25h</div>
+        </div>
+        <div class="accrual-pill">
+          <div class="accrual-label">Sick</div>
+          <div class="accrual-value">24.00h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE 2: TIME OFF TYPE & HOURS SETUP -->
+    <div class="card step-hidden" id="step-setup">
+      <div class="card-title">How are you taking this time off?</div>
+
+      <div class="segment-control">
+        <button class="segment-btn active" id="btn-mode-single">One type for all days</button>
+        <button class="segment-btn" id="btn-mode-mix">A mix of types</button>
+      </div>
+
+      <div class="input-group" id="single-type-wrapper">
+        <label for="primary-pay-type">Time Off Type</label>
+        <select id="primary-pay-type">
+          <option value="" disabled selected>-- Select Time Off Type --</option>
+          <option value="PTO">PTO (Vacation)</option>
+          <option value="PERSONAL">Personal Time</option>
+          <option value="SICK">Sick Time</option>
+          <option value="UNPAID">Unpaid Time Off / Regular Day Off</option>
+        </select>
+      </div>
+
+      <div class="setup-grid" id="shared-options-row">
+        <div class="input-group">
+          <label for="default-hours-per-day">Hours per Charged Day</label>
+          <input type="number" id="default-hours-per-day" value="8.0" step="0.5" min="0" max="24">
+        </div>
+        <div class="input-group">
+          <label for="paid-days-count">Charged Paid Days</label>
+          <input type="number" id="paid-days-count" value="5" min="0" max="30">
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE 3: DAILY BREAKDOWN CARDS -->
+    <div class="card step-hidden" id="step-breakdown">
+      <div class="card-title">
+        <span>Daily Schedule Breakdown</span>
+        <span id="badge-calendar-days" style="color: var(--text-muted);">-- Days</span>
+      </div>
+      <div id="daily-cards-stack"></div>
+    </div>
+
+    <!-- STAGE 3: REQUEST RECAP & SUBMIT -->
+    <div class="recap-card step-hidden" id="step-recap">
+      <div class="recap-card-title">
+        <span>🧾 REQUEST RECAP</span>
+        <span class="badge-span" id="recap-span-badge">Total Absence: -- Days</span>
+      </div>
+
+      <div class="recap-list">
+        <div class="recap-row">
+          <span class="recap-row-label">PTO Charged:</span>
+          <div class="recap-row-value">
+            <span class="recap-main-val" id="recap-pto-charged">0.0 hrs</span>
+            <span class="recap-sub-val" id="recap-pto-rem">(40.00 hrs remaining)</span>
+          </div>
+        </div>
+
+        <div class="recap-row">
+          <span class="recap-row-label">Personal Charged:</span>
+          <div class="recap-row-value">
+            <span class="recap-main-val" id="recap-pers-charged">0.0 hrs</span>
+            <span class="recap-sub-val" id="recap-pers-rem">(16.25 hrs remaining)</span>
+          </div>
+        </div>
+
+        <div class="recap-row">
+          <span class="recap-row-label">Sick Charged:</span>
+          <div class="recap-row-value">
+            <span class="recap-main-val" id="recap-sick-charged">0.0 hrs</span>
+            <span class="recap-sub-val" id="recap-sick-rem">(24.00 hrs remaining)</span>
+          </div>
+        </div>
+
+        <div class="recap-row">
+          <span class="recap-row-label">Unpaid / Regular Off:</span>
+          <div class="recap-row-value">
+            <span class="recap-main-val" id="recap-unpaid-days">0 Days</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-submit">Submit Request for Approval</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let isMixMode = false;
+  const balances = { PTO: 40.0, PERSONAL: 16.25, SICK: 24.0 };
+
+  const startDateInput = document.getElementById("start-date");
+  const endDateInput = document.getElementById("end-date");
+  const btnModeSingle = document.getElementById("btn-mode-single");
+  const btnModeMix = document.getElementById("btn-mode-mix");
+  const singleTypeWrapper = document.getElementById("single-type-wrapper");
+  const primaryPayType = document.getElementById("primary-pay-type");
+  const defaultHoursInput = document.getElementById("default-hours-per-day");
+  const paidDaysCountInput = document.getElementById("paid-days-count");
+  const sharedOptionsRow = document.getElementById("shared-options-row");
+  const dailyCardsStack = document.getElementById("daily-cards-stack");
+
+  const stepBalances = document.getElementById("step-balances");
+  const stepSetup = document.getElementById("step-setup");
+  const stepBreakdown = document.getElementById("step-breakdown");
+  const stepRecap = document.getElementById("step-recap");
+
+  function getDatesInRange(startStr, endStr) {
+    if (!startStr || !endStr) return [];
+    const dates = [];
+    let current = new Date(startStr + "T00:00:00");
+    const end = new Date(endStr + "T00:00:00");
+    if (current > end) return [];
+    while (current <= end) {
+      dates.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  }
+
+  function formatDateLabel(dateObj) {
+    return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  function handleDateChange() {
+    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+
+    if (dates.length === 0) {
+      document.getElementById("badge-total-days").textContent = "-- Days";
+      stepBalances.classList.add("step-hidden");
+      stepSetup.classList.add("step-hidden");
+      stepBreakdown.classList.add("step-hidden");
+      stepRecap.classList.add("step-hidden");
+      return;
+    }
+
+    document.getElementById("badge-total-days").textContent = `${dates.length} Days`;
+    stepBalances.classList.remove("step-hidden");
+    stepSetup.classList.remove("step-hidden");
+
+    if (!paidDaysCountInput.value || parseInt(paidDaysCountInput.value) > dates.length) {
+      paidDaysCountInput.value = Math.min(5, dates.length);
+    }
+
+    checkQuestionsAnswered(dates);
+  }
+
+  function checkQuestionsAnswered(dates) {
+    if (!dates) dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    if (dates.length === 0) return;
+
+    if (isMixMode) {
+      stepBreakdown.classList.remove("step-hidden");
+      stepRecap.classList.remove("step-hidden");
+      renderGrid(dates);
+    } else {
+      if (primaryPayType.value && primaryPayType.value !== "") {
+        stepBreakdown.classList.remove("step-hidden");
+        stepRecap.classList.remove("step-hidden");
+        renderGrid(dates);
+      } else {
+        stepBreakdown.classList.add("step-hidden");
+        stepRecap.classList.add("step-hidden");
+      }
+    }
+  }
+
+  function renderGrid(dates) {
+    if (!dates) dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    const totalSpan = dates.length;
+
+    document.getElementById("badge-calendar-days").textContent = `${totalSpan} Days`;
+    document.getElementById("recap-span-badge").textContent = `Total Absence: ${totalSpan} Days`;
+
+    let paidDaysLimit = parseInt(paidDaysCountInput.value);
+    if (isNaN(paidDaysLimit) || paidDaysLimit > totalSpan) {
+      paidDaysLimit = Math.min(5, totalSpan);
+      paidDaysCountInput.value = paidDaysLimit;
+    }
+
+    const defaultHrs = parseFloat(defaultHoursInput.value) || 8.0;
+    const selectedGlobalType = primaryPayType.value;
+
+    if (!isMixMode && selectedGlobalType === "UNPAID") {
+      sharedOptionsRow.style.display = "none";
+    } else {
+      sharedOptionsRow.style.display = "grid";
+    }
+
+    dailyCardsStack.innerHTML = "";
+
+    dates.forEach((d, idx) => {
+      const isCharged = idx < paidDaysLimit;
+
+      let cardType = "";
+      let hrsVal = 0.0;
+      let badgeClass = "paid";
+      let badgeLabel = "Charged";
+
+      if (isMixMode) {
+        if (isCharged) {
+          // Charged days require pay code selection
+          cardType = ""; 
+          hrsVal = defaultHrs;
+          badgeClass = "unselected";
+          badgeLabel = "Select Type";
+        } else {
+          // Trailing days beyond paid count default to Unpaid (0.0h)
+          cardType = "UNPAID";
+          hrsVal = 0.0;
+          badgeClass = "off";
+          badgeLabel = "Unpaid / Off";
+        }
+      } else {
+        // Single Mode
+        cardType = isCharged ? selectedGlobalType : "UNPAID";
+        hrsVal = isCharged ? defaultHrs : 0.0;
+        badgeClass = cardType === 'UNPAID' ? 'off' : 'paid';
+        badgeLabel = cardType === 'UNPAID' ? 'Unpaid / Off' : 'Charged';
+      }
+
+      const dayCard = document.createElement("div");
+      dayCard.className = "day-card";
+
+      dayCard.innerHTML = `
+        <div class="day-card-header">
+          <span class="day-date">${formatDateLabel(d)}</span>
+          <span class="day-badge ${badgeClass}" id="badge-${idx}">${badgeLabel}</span>
+        </div>
+        <div class="day-controls">
+          <select class="type-select" data-idx="${idx}">
+            <option value="" ${cardType === '' ? 'selected disabled' : ''}>-- Select Type --</option>
+            <option value="PTO" ${cardType === 'PTO' ? 'selected' : ''}>PTO (Vacation)</option>
+            <option value="PERSONAL" ${cardType === 'PERSONAL' ? 'selected' : ''}>Personal Time</option>
+            <option value="SICK" ${cardType === 'SICK' ? 'selected' : ''}>Sick Time</option>
+            <option value="UNPAID" ${cardType === 'UNPAID' ? 'selected' : ''}>Unpaid / Day Off</option>
+          </select>
+          <input type="number" class="hours-input" data-idx="${idx}" value="${hrsVal}" step="0.5" min="0" max="24" ${cardType === 'UNPAID' ? 'disabled' : ''}>
+        </div>
+        <div class="partial-row">
+          <label><input type="checkbox" class="partial-check" data-idx="${idx}"> Partial Day</label>
+          <span class="time-summary" id="time-sum-${idx}" style="font-size: 0.7rem; color: var(--primary); display:none;">8:00 AM - 12:00 PM</span>
+        </div>
+        <div class="time-pickers" id="pickers-${idx}" style="display:none;">
+          <input type="time" class="start-time" value="08:00" data-idx="${idx}">
+          <input type="time" class="end-time" value="12:00" data-idx="${idx}">
+        </div>
+      `;
+      dailyCardsStack.appendChild(dayCard);
+    });
+
+    attachListeners();
+    recalculate();
+  }
+
+  function attachListeners() {
+    document.querySelectorAll(".type-select").forEach(sel => {
+      sel.addEventListener("change", (e) => {
+        const idx = e.target.dataset.idx;
+        const hrsInp = document.querySelector(`.hours-input[data-idx="${idx}"]`);
+        const badge = document.getElementById(`badge-${idx}`);
+
+        if (e.target.value === "UNPAID") {
+          hrsInp.value = "0.0";
+          hrsInp.disabled = true;
+          badge.className = "day-badge off";
+          badge.textContent = "Unpaid / Off";
+        } else {
+          if (hrsInp.disabled || hrsInp.value === "0.0") hrsInp.value = defaultHoursInput.value || "8.0";
+          hrsInp.disabled = false;
+          badge.className = "day-badge paid";
+          badge.textContent = "Charged";
+        }
+        recalculate();
+      });
+    });
+
+    document.querySelectorAll(".hours-input").forEach(inp => {
+      inp.addEventListener("input", recalculate);
+    });
+
+    document.querySelectorAll(".partial-check").forEach(chk => {
+      chk.addEventListener("change", (e) => {
+        const idx = e.target.dataset.idx;
+        const pickers = document.getElementById(`pickers-${idx}`);
+        const sum = document.getElementById(`time-sum-${idx}`);
+        const hrsInp = document.querySelector(`.hours-input[data-idx="${idx}"]`);
+
+        if (e.target.checked) {
+          pickers.style.display = "grid";
+          sum.style.display = "inline";
+          hrsInp.value = "4.0";
+          hrsInp.readOnly = true;
+        } else {
+          pickers.style.display = "none";
+          sum.style.display = "none";
+          hrsInp.readOnly = false;
+        }
+        recalculate();
+      });
+    });
+  }
+
+  function recalculate() {
+    let ptoCharged = 0;
+    let persCharged = 0;
+    let sickCharged = 0;
+    let unpaidDays = 0;
+
+    document.querySelectorAll(".day-card").forEach(card => {
+      const sel = card.querySelector(".type-select");
+      const hrsInp = card.querySelector(".hours-input");
+      const hrs = parseFloat(hrsInp.value) || 0;
+
+      if (sel.value === "PTO") ptoCharged += hrs;
+      else if (sel.value === "PERSONAL") persCharged += hrs;
+      else if (sel.value === "SICK") sickCharged += hrs;
+      else if (sel.value === "UNPAID" || hrs === 0) unpaidDays++;
+    });
+
+    document.getElementById("recap-pto-charged").textContent = `${ptoCharged.toFixed(1)} hrs`;
+    document.getElementById("recap-pto-rem").textContent = `(${(balances.PTO - ptoCharged).toFixed(2)} hrs remaining)`;
+
+    document.getElementById("recap-pers-charged").textContent = `${persCharged.toFixed(1)} hrs`;
+    document.getElementById("recap-pers-rem").textContent = `(${(balances.PERSONAL - persCharged).toFixed(2)} hrs remaining)`;
+
+    document.getElementById("recap-sick-charged").textContent = `${sickCharged.toFixed(1)} hrs`;
+    document.getElementById("recap-sick-rem").textContent = `(${(balances.SICK - sickCharged).toFixed(2)} hrs remaining)`;
+
+    document.getElementById("recap-unpaid-days").textContent = `${unpaidDays} Days`;
+  }
+
+  btnModeSingle.addEventListener("click", () => {
+    isMixMode = false;
+    btnModeSingle.classList.add("active");
+    btnModeMix.classList.remove("active");
+    singleTypeWrapper.style.display = "flex";
+    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    checkQuestionsAnswered(dates);
+  });
+
+  btnModeMix.addEventListener("click", () => {
+    isMixMode = true;
+    btnModeMix.classList.add("active");
+    btnModeSingle.classList.remove("active");
+    singleTypeWrapper.style.display = "none";
+    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    checkQuestionsAnswered(dates);
+  });
+
+  startDateInput.addEventListener("change", handleDateChange);
+  endDateInput.addEventListener("change", handleDateChange);
+
+  primaryPayType.addEventListener("change", () => {
+    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    checkQuestionsAnswered(dates);
+  });
+
+  defaultHoursInput.addEventListener("input", () => {
+    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    checkQuestionsAnswered(dates);
+  });
+
+  paidDaysCountInput.addEventListener("input", () => {
+    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    checkQuestionsAnswered(dates);
+  });
+</script>
+</body>
+</html>
