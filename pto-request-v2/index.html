@@ -72,7 +72,32 @@
     .accrual-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
     .accrual-value { font-size: 0.95rem; font-weight: 800; color: var(--text-dark); margin-top: 2px; }
 
-    /* Airline / Hotel Style Range Calendar Widget */
+    /* Collapsed Date Summary Bar */
+    .collapsed-date-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-gray);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+    .collapsed-info { display: flex; flex-direction: column; gap: 2px; }
+    .collapsed-dates { font-size: 0.85rem; font-weight: 800; color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+    .collapsed-span { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+    .btn-change-dates {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    /* Calendar Grid Widget */
     .calendar-container { width: 100%; display: flex; flex-direction: column; gap: 10px; }
     .cal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.85rem; color: var(--text-dark); }
     .cal-nav { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--primary); padding: 0 8px; }
@@ -97,7 +122,7 @@
     .cal-cell.end-date { background: var(--primary); color: #ffffff; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
     .cal-cell.start-date.end-date { border-radius: 8px; }
 
-    /* iOS Overlap Fix - Flex Row with Min-Width 0 */
+    /* Compact Inputs Grid */
     .setup-grid { display: flex; gap: 10px; margin-top: 10px; width: 100%; }
     .input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
     .input-group label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
@@ -113,7 +138,7 @@
       -webkit-appearance: none;
     }
 
-    /* Segmented Strategy Switcher */
+    /* Segmented Switcher */
     .segment-control {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -220,6 +245,7 @@
     }
     .badge-pill { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
 
+    /* Progressive Disclosure Utility Class */
     .step-hidden { display: none !important; }
   </style>
 </head>
@@ -231,14 +257,24 @@
   </div>
 
   <div class="content-scroll">
-    <!-- STAGE 1: AIRLINE / HOTEL STYLE DATE RANGE SELECTION -->
+    <!-- STAGE 1: DATE RANGE SELECTION -->
     <div class="card">
       <div class="card-title">
         <span>1. Date Range</span>
         <span class="badge-pill" id="badge-total-days">Tap Start & End Date</span>
       </div>
 
-      <div class="calendar-container">
+      <!-- Collapsed Summary Bar (Shown after date selection) -->
+      <div class="collapsed-date-bar step-hidden" id="collapsed-date-summary">
+        <div class="collapsed-info">
+          <span class="collapsed-dates" id="summary-dates-text">Nov 2 - Nov 8, 2026</span>
+          <span class="collapsed-span" id="summary-span-text">7 Calendar Days</span>
+        </div>
+        <button class="btn-change-dates" id="btn-change-dates">Change Dates</button>
+      </div>
+
+      <!-- Expanded Calendar Grid Widget -->
+      <div class="calendar-container" id="expanded-calendar-widget">
         <div class="cal-header">
           <button class="cal-nav" id="cal-prev">&lt;</button>
           <span id="cal-month-title">November 2026</span>
@@ -366,11 +402,11 @@
   let isMixMode = false;
   const balances = { PTO: 40.0, PERSONAL: 16.25, SICK: 24.0 };
 
-  // Date Range State for Range Picker
+  // Date Range State
   let rangeStart = null;
   let rangeEnd = null;
   let currentCalYear = 2026;
-  let currentCalMonth = 10; // November (0-indexed)
+  let currentCalMonth = 10; // November
 
   const btnModeSingle = document.getElementById("btn-mode-single");
   const btnModeMix = document.getElementById("btn-mode-mix");
@@ -381,12 +417,14 @@
   const sharedOptionsRow = document.getElementById("shared-options-row");
   const dailyCardsStack = document.getElementById("daily-cards-stack");
 
+  // Step Elements
+  const expandedCal = document.getElementById("expanded-calendar-widget");
+  const collapsedSummary = document.getElementById("collapsed-date-summary");
   const stepBalances = document.getElementById("step-balances");
   const stepSetup = document.getElementById("step-setup");
   const stepBreakdown = document.getElementById("step-breakdown");
   const stepRecap = document.getElementById("step-recap");
 
-  // Render Calendar Widget
   function renderCalendar() {
     const monthTitle = document.getElementById("cal-month-title");
     const grid = document.getElementById("cal-days-grid");
@@ -398,7 +436,6 @@
     const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
     const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
 
-    // Fill empty offset slots
     for (let i = 0; i < firstDay; i++) {
       const cell = document.createElement("div");
       cell.className = "cal-cell empty";
@@ -411,7 +448,6 @@
       cell.textContent = d;
       const thisDate = new Date(currentCalYear, currentCalMonth, d);
 
-      // Check selections
       if (rangeStart && isSameDate(thisDate, rangeStart)) cell.classList.add("start-date");
       if (rangeEnd && isSameDate(thisDate, rangeEnd)) cell.classList.add("end-date");
       if (rangeStart && rangeEnd && thisDate > rangeStart && thisDate < rangeEnd) {
@@ -429,26 +465,67 @@
 
   function handleCalCellClick(clickedDate) {
     if (!rangeStart || (rangeStart && rangeEnd)) {
-      // First click: Set Start Date
+      // Step A: First Click -> Start Date
       rangeStart = clickedDate;
       rangeEnd = null;
       document.getElementById("badge-total-days").textContent = "Select End Date";
+
       stepBalances.classList.add("step-hidden");
       stepSetup.classList.add("step-hidden");
       stepBreakdown.classList.add("step-hidden");
       stepRecap.classList.add("step-hidden");
     } else if (rangeStart && !rangeEnd) {
       if (clickedDate < rangeStart) {
-        // Tapped earlier date -> Reset start
         rangeStart = clickedDate;
       } else {
-        // Second click: Set End Date & Trigger Next Stage
+        // Step B: Second Click -> End Date (Triggers Auto-Collapse & Stage 2)
         rangeEnd = clickedDate;
         handleRangeSelected();
       }
     }
     renderCalendar();
   }
+
+  function handleRangeSelected() {
+    const dates = getDatesInRange(rangeStart, rangeEnd);
+    const dateOpts = { month: 'short', day: 'numeric' };
+    const startText = rangeStart.toLocaleDateString('en-US', dateOpts);
+    const endText = rangeEnd.toLocaleDateString('en-US', { ...dateOpts, year: 'numeric' });
+
+    // Update Collapsed Summary Bar
+    document.getElementById("summary-dates-text").textContent = `${startText} - ${endText}`;
+    document.getElementById("summary-span-text").textContent = `${dates.length} Calendar Days`;
+    document.getElementById("badge-total-days").textContent = `${dates.length} Days`;
+
+    // Collapse Calendar Widget & Reveal Balances + Questions
+    expandedCal.classList.add("step-hidden");
+    collapsedSummary.classList.remove("step-hidden");
+    stepBalances.classList.remove("step-hidden");
+    stepSetup.classList.remove("step-hidden");
+
+    if (!paidDaysCountInput.value || parseInt(paidDaysCountInput.value) > dates.length) {
+      paidDaysCountInput.value = Math.min(5, dates.length);
+    }
+
+    checkQuestionsAnswered(dates);
+  }
+
+  function openCalendarForEdit() {
+    collapsedSummary.classList.add("step-hidden");
+    expandedCal.classList.remove("step-hidden");
+    rangeStart = null;
+    rangeEnd = null;
+    document.getElementById("badge-total-days").textContent = "Tap Start & End Date";
+
+    stepBalances.classList.add("step-hidden");
+    stepSetup.classList.add("step-hidden");
+    stepBreakdown.classList.add("step-hidden");
+    stepRecap.classList.add("step-hidden");
+    renderCalendar();
+  }
+
+  // Tapping either the dates text or the button re-opens calendar
+  collapsedSummary.addEventListener("click", openCalendarForEdit);
 
   function getDatesInRange(startObj, endObj) {
     if (!startObj || !endObj) return [];
@@ -463,20 +540,6 @@
 
   function formatDateLabel(dateObj) {
     return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  }
-
-  function handleRangeSelected() {
-    const dates = getDatesInRange(rangeStart, rangeEnd);
-    document.getElementById("badge-total-days").textContent = `${dates.length} Days`;
-
-    stepBalances.classList.remove("step-hidden");
-    stepSetup.classList.remove("step-hidden");
-
-    if (!paidDaysCountInput.value || parseInt(paidDaysCountInput.value) > dates.length) {
-      paidDaysCountInput.value = Math.min(5, dates.length);
-    }
-
-    checkQuestionsAnswered(dates);
   }
 
   function checkQuestionsAnswered(dates) {
@@ -610,7 +673,6 @@
       inp.addEventListener("input", recalculate);
     });
 
-    // Partial Day Unselect Fix -> Restores Default Setup Hours
     document.querySelectorAll(".partial-check").forEach(chk => {
       chk.addEventListener("change", (e) => {
         const idx = e.target.dataset.idx;
@@ -627,7 +689,6 @@
           pickers.style.display = "none";
           sum.style.display = "none";
           hrsInp.readOnly = false;
-          // RESTORE BACK TO SETUP HOURS PER DAY
           hrsInp.value = defaultHoursInput.value || "8.0";
         }
         recalculate();
@@ -709,11 +770,8 @@
     checkQuestionsAnswered(dates);
   });
 
-  // Default initial range selection (Nov 2 to Nov 8, 2026) for quick testing
-  rangeStart = new Date(2026, 10, 2);
-  rangeEnd = new Date(2026, 10, 8);
+  // Start with clean slate on launch (No pre-selected dates)
   renderCalendar();
-  handleRangeSelected();
 </script>
 </body>
 </html>
