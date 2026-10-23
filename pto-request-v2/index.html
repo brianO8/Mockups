@@ -72,19 +72,45 @@
     .accrual-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
     .accrual-value { font-size: 0.95rem; font-weight: 800; color: var(--text-dark); margin-top: 2px; }
 
-    /* Date Range */
-    .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .input-group { display: flex; flex-direction: column; gap: 4px; }
-    .input-group label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); }
+    /* Airline / Hotel Style Range Calendar Widget */
+    .calendar-container { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .cal-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.85rem; color: var(--text-dark); }
+    .cal-nav { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--primary); padding: 0 8px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+    .cal-day-head { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); padding: 4px 0; }
+    .cal-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-dark);
+      user-select: none;
+    }
+    .cal-cell.empty { cursor: default; }
+    .cal-cell:not(.empty):hover { background: #e2e8f0; }
+    .cal-cell.in-range { background: var(--primary-light); color: var(--primary); border-radius: 0; }
+    .cal-cell.start-date { background: var(--primary); color: #ffffff; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+    .cal-cell.end-date { background: var(--primary); color: #ffffff; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+    .cal-cell.start-date.end-date { border-radius: 8px; }
+
+    /* iOS Overlap Fix - Flex Row with Min-Width 0 */
+    .setup-grid { display: flex; gap: 10px; margin-top: 10px; width: 100%; }
+    .input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+    .input-group label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
     .input-group input, .input-group select {
       width: 100%;
-      padding: 8px 10px;
+      padding: 8px;
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 0.85rem;
       font-weight: 600;
       color: var(--text-dark);
       background: #ffffff;
+      -webkit-appearance: none;
     }
 
     /* Segmented Strategy Switcher */
@@ -114,9 +140,6 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    /* Compact Inputs Grid */
-    .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-
     /* Daily Cards Stack */
     .day-card {
       background: #ffffff;
@@ -135,9 +158,13 @@
     .day-badge.off { background: #f1f5f9; color: #475569; }
     .day-badge.unselected { background: #fef3c7; color: #92400e; }
 
-    .day-controls { display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; align-items: center; }
+    .day-controls { display: flex; gap: 8px; align-items: center; width: 100%; }
+    .day-controls .type-select { flex: 1.4; min-width: 0; }
+    .day-controls .hours-input { flex: 1; min-width: 0; }
+
     .partial-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); padding-top: 4px; border-top: 1px solid #f1f5f9; }
-    .time-pickers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; margin-top: 4px; }
+    .time-pickers { display: flex; gap: 6px; width: 100%; margin-top: 4px; }
+    .time-pickers input { flex: 1; min-width: 0; }
 
     /* Request Recap Card */
     .recap-card {
@@ -193,7 +220,6 @@
     }
     .badge-pill { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
 
-    /* Hidden Utility Class for Progressive Disclosure */
     .step-hidden { display: none !important; }
   </style>
 </head>
@@ -205,21 +231,29 @@
   </div>
 
   <div class="content-scroll">
-    <!-- STAGE 1: DATE RANGE SELECTION -->
+    <!-- STAGE 1: AIRLINE / HOTEL STYLE DATE RANGE SELECTION -->
     <div class="card">
       <div class="card-title">
         <span>1. Date Range</span>
-        <span class="badge-pill" id="badge-total-days">-- Days</span>
+        <span class="badge-pill" id="badge-total-days">Tap Start & End Date</span>
       </div>
-      <div class="date-row">
-        <div class="input-group">
-          <label for="start-date">Start Date</label>
-          <input type="date" id="start-date">
+
+      <div class="calendar-container">
+        <div class="cal-header">
+          <button class="cal-nav" id="cal-prev">&lt;</button>
+          <span id="cal-month-title">November 2026</span>
+          <button class="cal-nav" id="cal-next">&gt;</button>
         </div>
-        <div class="input-group">
-          <label for="end-date">End Date</label>
-          <input type="date" id="end-date">
+        <div class="cal-grid">
+          <div class="cal-day-head">S</div>
+          <div class="cal-day-head">M</div>
+          <div class="cal-day-head">T</div>
+          <div class="cal-day-head">W</div>
+          <div class="cal-day-head">T</div>
+          <div class="cal-day-head">F</div>
+          <div class="cal-day-head">S</div>
         </div>
+        <div class="cal-grid" id="cal-days-grid"></div>
       </div>
     </div>
 
@@ -264,11 +298,11 @@
 
       <div class="setup-grid" id="shared-options-row">
         <div class="input-group">
-          <label for="default-hours-per-day">Hours per Charged Day</label>
+          <label for="default-hours-per-day">Hours / Day</label>
           <input type="number" id="default-hours-per-day" value="8.0" step="0.5" min="0" max="24">
         </div>
         <div class="input-group">
-          <label for="paid-days-count">Charged Paid Days</label>
+          <label for="paid-days-count">Charged Days</label>
           <input type="number" id="paid-days-count" value="5" min="0" max="30">
         </div>
       </div>
@@ -332,8 +366,12 @@
   let isMixMode = false;
   const balances = { PTO: 40.0, PERSONAL: 16.25, SICK: 24.0 };
 
-  const startDateInput = document.getElementById("start-date");
-  const endDateInput = document.getElementById("end-date");
+  // Date Range State for Range Picker
+  let rangeStart = null;
+  let rangeEnd = null;
+  let currentCalYear = 2026;
+  let currentCalMonth = 10; // November (0-indexed)
+
   const btnModeSingle = document.getElementById("btn-mode-single");
   const btnModeMix = document.getElementById("btn-mode-mix");
   const singleTypeWrapper = document.getElementById("single-type-wrapper");
@@ -348,13 +386,75 @@
   const stepBreakdown = document.getElementById("step-breakdown");
   const stepRecap = document.getElementById("step-recap");
 
-  function getDatesInRange(startStr, endStr) {
-    if (!startStr || !endStr) return [];
+  // Render Calendar Widget
+  function renderCalendar() {
+    const monthTitle = document.getElementById("cal-month-title");
+    const grid = document.getElementById("cal-days-grid");
+    grid.innerHTML = "";
+
+    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    monthTitle.textContent = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+
+    const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+    const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+
+    // Fill empty offset slots
+    for (let i = 0; i < firstDay; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cal-cell empty";
+      grid.appendChild(cell);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const cell = document.createElement("div");
+      cell.className = "cal-cell";
+      cell.textContent = d;
+      const thisDate = new Date(currentCalYear, currentCalMonth, d);
+
+      // Check selections
+      if (rangeStart && isSameDate(thisDate, rangeStart)) cell.classList.add("start-date");
+      if (rangeEnd && isSameDate(thisDate, rangeEnd)) cell.classList.add("end-date");
+      if (rangeStart && rangeEnd && thisDate > rangeStart && thisDate < rangeEnd) {
+        cell.classList.add("in-range");
+      }
+
+      cell.addEventListener("click", () => handleCalCellClick(thisDate));
+      grid.appendChild(cell);
+    }
+  }
+
+  function isSameDate(d1, d2) {
+    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+  }
+
+  function handleCalCellClick(clickedDate) {
+    if (!rangeStart || (rangeStart && rangeEnd)) {
+      // First click: Set Start Date
+      rangeStart = clickedDate;
+      rangeEnd = null;
+      document.getElementById("badge-total-days").textContent = "Select End Date";
+      stepBalances.classList.add("step-hidden");
+      stepSetup.classList.add("step-hidden");
+      stepBreakdown.classList.add("step-hidden");
+      stepRecap.classList.add("step-hidden");
+    } else if (rangeStart && !rangeEnd) {
+      if (clickedDate < rangeStart) {
+        // Tapped earlier date -> Reset start
+        rangeStart = clickedDate;
+      } else {
+        // Second click: Set End Date & Trigger Next Stage
+        rangeEnd = clickedDate;
+        handleRangeSelected();
+      }
+    }
+    renderCalendar();
+  }
+
+  function getDatesInRange(startObj, endObj) {
+    if (!startObj || !endObj) return [];
     const dates = [];
-    let current = new Date(startStr + "T00:00:00");
-    const end = new Date(endStr + "T00:00:00");
-    if (current > end) return [];
-    while (current <= end) {
+    let current = new Date(startObj);
+    while (current <= endObj) {
       dates.push(new Date(current));
       current.setDate(current.getDate() + 1);
     }
@@ -365,19 +465,10 @@
     return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   }
 
-  function handleDateChange() {
-    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
-
-    if (dates.length === 0) {
-      document.getElementById("badge-total-days").textContent = "-- Days";
-      stepBalances.classList.add("step-hidden");
-      stepSetup.classList.add("step-hidden");
-      stepBreakdown.classList.add("step-hidden");
-      stepRecap.classList.add("step-hidden");
-      return;
-    }
-
+  function handleRangeSelected() {
+    const dates = getDatesInRange(rangeStart, rangeEnd);
     document.getElementById("badge-total-days").textContent = `${dates.length} Days`;
+
     stepBalances.classList.remove("step-hidden");
     stepSetup.classList.remove("step-hidden");
 
@@ -389,7 +480,7 @@
   }
 
   function checkQuestionsAnswered(dates) {
-    if (!dates) dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    if (!dates) dates = getDatesInRange(rangeStart, rangeEnd);
     if (dates.length === 0) return;
 
     if (isMixMode) {
@@ -409,7 +500,7 @@
   }
 
   function renderGrid(dates) {
-    if (!dates) dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    if (!dates) dates = getDatesInRange(rangeStart, rangeEnd);
     const totalSpan = dates.length;
 
     document.getElementById("badge-calendar-days").textContent = `${totalSpan} Days`;
@@ -427,7 +518,7 @@
     if (!isMixMode && selectedGlobalType === "UNPAID") {
       sharedOptionsRow.style.display = "none";
     } else {
-      sharedOptionsRow.style.display = "grid";
+      sharedOptionsRow.style.display = "flex";
     }
 
     dailyCardsStack.innerHTML = "";
@@ -442,20 +533,17 @@
 
       if (isMixMode) {
         if (isCharged) {
-          // Charged days require pay code selection
           cardType = ""; 
           hrsVal = defaultHrs;
           badgeClass = "unselected";
           badgeLabel = "Select Type";
         } else {
-          // Trailing days beyond paid count default to Unpaid (0.0h)
           cardType = "UNPAID";
           hrsVal = 0.0;
           badgeClass = "off";
           badgeLabel = "Unpaid / Off";
         }
       } else {
-        // Single Mode
         cardType = isCharged ? selectedGlobalType : "UNPAID";
         hrsVal = isCharged ? defaultHrs : 0.0;
         badgeClass = cardType === 'UNPAID' ? 'off' : 'paid';
@@ -522,6 +610,7 @@
       inp.addEventListener("input", recalculate);
     });
 
+    // Partial Day Unselect Fix -> Restores Default Setup Hours
     document.querySelectorAll(".partial-check").forEach(chk => {
       chk.addEventListener("change", (e) => {
         const idx = e.target.dataset.idx;
@@ -530,7 +619,7 @@
         const hrsInp = document.querySelector(`.hours-input[data-idx="${idx}"]`);
 
         if (e.target.checked) {
-          pickers.style.display = "grid";
+          pickers.style.display = "flex";
           sum.style.display = "inline";
           hrsInp.value = "4.0";
           hrsInp.readOnly = true;
@@ -538,6 +627,8 @@
           pickers.style.display = "none";
           sum.style.display = "none";
           hrsInp.readOnly = false;
+          // RESTORE BACK TO SETUP HOURS PER DAY
+          hrsInp.value = defaultHoursInput.value || "8.0";
         }
         recalculate();
       });
@@ -578,7 +669,7 @@
     btnModeSingle.classList.add("active");
     btnModeMix.classList.remove("active");
     singleTypeWrapper.style.display = "flex";
-    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    const dates = getDatesInRange(rangeStart, rangeEnd);
     checkQuestionsAnswered(dates);
   });
 
@@ -587,27 +678,42 @@
     btnModeMix.classList.add("active");
     btnModeSingle.classList.remove("active");
     singleTypeWrapper.style.display = "none";
-    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    const dates = getDatesInRange(rangeStart, rangeEnd);
     checkQuestionsAnswered(dates);
   });
 
-  startDateInput.addEventListener("change", handleDateChange);
-  endDateInput.addEventListener("change", handleDateChange);
+  document.getElementById("cal-prev").addEventListener("click", () => {
+    if (currentCalMonth === 0) { currentCalMonth = 11; currentCalYear--; }
+    else { currentCalMonth--; }
+    renderCalendar();
+  });
+
+  document.getElementById("cal-next").addEventListener("click", () => {
+    if (currentCalMonth === 11) { currentCalMonth = 0; currentCalYear++; }
+    else { currentCalMonth++; }
+    renderCalendar();
+  });
 
   primaryPayType.addEventListener("change", () => {
-    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    const dates = getDatesInRange(rangeStart, rangeEnd);
     checkQuestionsAnswered(dates);
   });
 
   defaultHoursInput.addEventListener("input", () => {
-    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    const dates = getDatesInRange(rangeStart, rangeEnd);
     checkQuestionsAnswered(dates);
   });
 
   paidDaysCountInput.addEventListener("input", () => {
-    const dates = getDatesInRange(startDateInput.value, endDateInput.value);
+    const dates = getDatesInRange(rangeStart, rangeEnd);
     checkQuestionsAnswered(dates);
   });
+
+  // Default initial range selection (Nov 2 to Nov 8, 2026) for quick testing
+  rangeStart = new Date(2026, 10, 2);
+  rangeEnd = new Date(2026, 10, 8);
+  renderCalendar();
+  handleRangeSelected();
 </script>
 </body>
 </html>
