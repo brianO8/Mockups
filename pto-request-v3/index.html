@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Time Off Request</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        },
+                        accent: {
+                            50: '#f7fee7',
+                            100: '#ecfccb',
+                            500: '#84cc16',
+                            600: '#65a30d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 font-sans min-h-screen flex justify-center items-center p-0 sm:p-4 text-slate-800 antialiased">
+
+    <!-- Mobile Device Container -->
+    <div class="w-full max-w-[412px] h-[100vh] sm:h-[870px] bg-slate-50 sm:rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative border-0 sm:border-[8px] border-slate-800">
+
+        <!-- Mobile Status Bar -->
+        <div class="bg-slate-900 text-white px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold select-none z-30 shrink-0">
+            <span>9:41</span>
+            <div class="w-20 h-4 bg-slate-950 rounded-full mx-auto absolute left-0 right-0 top-2 hidden sm:block"></div>
+            <div class="flex items-center space-x-1.5">
+                <i class="fa-solid fa-signal text-[10px]"></i>
+                <i class="fa-solid fa-wifi text-[10px]"></i>
+                <i class="fa-solid fa-battery-full text-xs"></i>
+            </div>
+        </div>
+
+        <!-- App Header Bar -->
+        <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-20 shrink-0">
+            <button class="text-slate-600 hover:text-slate-900 text-sm font-medium flex items-center gap-1.5 transition-colors">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+                <span>Back</span>
+            </button>
+            <h1 class="text-base font-bold text-slate-900 tracking-tight">Request Time Off</h1>
+            <button onclick="resetToDefaults()" class="text-brand-600 hover:text-brand-700 text-xs font-semibold">
+                Reset
+            </button>
+        </div>
+
+        <!-- Scrollable Content Viewport -->
+        <div id="scroll-container" class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3.5 pb-28">
+
+            <!-- Card 1: Airline Booking Style Date Range Picker -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3">
+                
+                <!-- Date Range Header & Badge -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block mb-0.5">Date Range</span>
+                        <div class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-regular fa-calendar-days text-brand-500"></i>
+                            <span id="date-range-display-text">Select Start & End Date</span>
+                        </div>
+                    </div>
+                    <span id="total-days-badge" class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full border border-brand-100">
+                        -- Days
+                    </span>
+                </div>
+
+                <!-- Collapsed Date Summary Bar -->
+                <div id="collapsed-date-summary" class="hidden flex items-center justify-between bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-brand-500 text-sm"></i>
+                        <span id="collapsed-dates-text" class="text-xs font-bold text-slate-800">Nov 2 – Nov 8, 2026</span>
+                    </div>
+                    <button onclick="openCalendarForEdit()" class="text-xs font-bold text-brand-600 hover:text-brand-700 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm">
+                        Change
+                    </button>
+                </div>
+
+                <!-- Inline Airline Style Calendar Picker Widget -->
+                <div id="expanded-calendar-widget" class="space-y-3 pt-1">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-800 px-1">
+                        <button onclick="changeMonth(-1)" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="cal-month-title">November 2026</span>
+                        <button onclick="changeMonth(1)" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+
+                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase">
+                        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                    </div>
+
+                    <div id="cal-days-grid" class="grid grid-cols-7 gap-1 text-center">
+                        <!-- Dynamic Calendar Cells Rendered Here -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Card 2: Available Accrual Balances (Revealed after date selection) -->
+            <div id="section-balances" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-2.5 transition-all">
+                <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block">Available Accrual Balances</span>
+                <div class="grid grid-cols-3 gap-1.5">
+                    <div id="badge-pto" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase block">PTO</span>
+                        <span id="bal-pto" class="text-xs font-bold text-slate-900">40.0h</span>
+                    </div>
+                    <div id="badge-personal" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase block">Personal</span>
+                        <span id="bal-personal" class="text-xs font-bold text-slate-900">16.25h</span>
+                    </div>
+                    <div id="badge-sick" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase block">Sick</span>
+                        <span id="bal-sick" class="text-xs font-bold text-slate-900">24.0h</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Breakdown Cards Stack (Revealed after date selection) -->
+            <div id="section-breakdown" class="hidden space-y-2.5 transition-all">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Daily Breakdown</span>
+                    <span id="daily-breakdown-count-label" class="text-[11px] text-slate-500 font-medium">7 Calendar Days</span>
+                </div>
+
+                <!-- Daily Cards Container -->
+                <div id="daily-cards-container" class="space-y-2.5">
+                    <!-- Dynamic Cards Rendered Here -->
+                </div>
+            </div>
+
+            <!-- Request Recap Section (Revealed after date selection) -->
+            <div id="section-recap" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3 transition-all">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-receipt text-slate-400"></i>
+                        Request Recap
+                    </span>
+                    <span id="summary-total-absence" class="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                        Total Absence: 7 Days
+                    </span>
+                </div>
+
+                <!-- Charged Items Breakdown -->
+                <div class="space-y-2 text-xs">
+                    <div id="summary-pto-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">PTO Charged:</span>
+                        <div class="text-right">
+                            <span id="summary-pto-charged" class="font-bold text-slate-900">24.0 hrs</span>
+                            <span id="summary-pto-rem" class="text-[11px] text-slate-500 block">(16.0 hrs remaining)</span>
+                        </div>
+                    </div>
+
+                    <div id="summary-personal-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Personal Charged:</span>
+                        <div class="text-right">
+                            <span id="summary-personal-charged" class="font-bold text-slate-900">12.0 hrs</span>
+                            <span id="summary-personal-rem" class="text-[11px] text-slate-500 block">(4.25 hrs remaining)</span>
+                        </div>
+                    </div>
+
+                    <div id="summary-sick-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Sick Charged:</span>
+                        <div class="text-right">
+                            <span id="summary-sick-charged" class="font-bold text-slate-900">0.0 hrs</span>
+                            <span id="summary-sick-rem" class="text-[11px] text-slate-500 block">(24.0 hrs remaining)</span>
+                        </div>
+                    </div>
+
+                    <div id="summary-unpaid-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Unpaid / Regular Off:</span>
+                        <span id="summary-unpaid-days" class="font-bold text-slate-900">2 Days</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sticky Footer with Pill Submit Button -->
+        <div id="section-footer" class="hidden absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200/80 p-4 shadow-lg z-30 transition-all">
+            <button id="submit-btn" onclick="handleSubmit()" class="w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-slate-950 font-bold py-3.5 px-6 rounded-full shadow-lg shadow-accent-500/20 flex items-center justify-center gap-2 transition-all duration-150 uppercase tracking-wider text-sm">
+                <span>Submit Request</span>
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const INITIAL_BALANCES = { PTO: 40.0, PERSONAL: 16.25, SICK: 24.0 };
+        const STANDARD_SHIFT_HOURS = 8.0;
+
+        let rangeStart = null;
+        let rangeEnd = null;
+        let currentCalYear = 2026;
+        let currentCalMonth = 10; // November (0-indexed)
+
+        let daysStore = {};
+
+        const timeOptions = [
+            "06:00 AM", "07:00 AM", "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM",
+            "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"
+        ];
+
+        function formatDateLabel(dateObj) {
+            return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
+        function renderCalendar() {
+            const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+            document.getElementById("cal-month-title").textContent = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+            
+            const grid = document.getElementById("cal-days-grid");
+            grid.innerHTML = "";
+
+            const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+            const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
+                grid.appendChild(document.createElement("div"));
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const cell = document.createElement("button");
+                const thisDate = new Date(currentCalYear, currentCalMonth, d);
+                cell.textContent = d;
+                cell.className = "h-8 w-full rounded-lg text-xs font-semibold flex items-center justify-center transition-all select-none ";
+
+                const isStart = rangeStart && isSameDate(thisDate, rangeStart);
+                const isEnd = rangeEnd && isSameDate(thisDate, rangeEnd);
+                const isInRange = rangeStart && rangeEnd && thisDate > rangeStart && thisDate < rangeEnd;
+
+                if (isStart || isEnd) {
+                    cell.className += "bg-brand-600 text-white font-bold shadow-sm";
+                } else if (isInRange) {
+                    cell.className += "bg-brand-50 text-brand-700 font-bold rounded-none";
+                } else {
+                    cell.className += "text-slate-700 hover:bg-slate-100";
+                }
+
+                cell.onclick = () => handleCalCellClick(thisDate);
+                grid.appendChild(cell);
+            }
+        }
+
+        function isSameDate(d1, d2) {
+            return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+        }
+
+        function changeMonth(delta) {
+            currentCalMonth += delta;
+            if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
+            else if (currentCalMonth > 11) { currentCalMonth = 0; currentCalYear++; }
+            renderCalendar();
+        }
+
+        function handleCalCellClick(clickedDate) {
+            if (!rangeStart || (rangeStart && rangeEnd)) {
+                rangeStart = clickedDate;
+                rangeEnd = null;
+                document.getElementById('date-range-display-text').textContent = "Select End Date";
+                document.getElementById('total-days-badge').textContent = "End Date?";
+                hideDownstreamSections();
+            } else if (rangeStart && !rangeEnd) {
+                if (clickedDate < rangeStart) {
+                    rangeStart = clickedDate;
+                } else {
+                    rangeEnd = clickedDate;
+                    handleDateRangeComplete();
+                }
+            }
+            renderCalendar();
+        }
+
+        function handleDateRangeComplete() {
+            const dateList = [];
+            let curr = new Date(rangeStart);
+            while (curr <= rangeEnd) {
+                const dateKey = curr.toISOString().split('T')[0];
+                dateList.push({ dateKey: dateKey, dateObj: new Date(curr) });
+                
+                if (!daysStore[dateKey]) {
+                    const dayOfWeek = curr.getDay();
+                    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                    daysStore[dateKey] = {
+                        type: isWeekend ? 'UNPAID' : 'PTO',
+                        partial: false,
+                        start: '08:00 AM',
+                        stop: '05:00 PM',
+                        hours: isWeekend ? 0.0 : STANDARD_SHIFT_HOURS
+                    };
+                }
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            const startStr = formatDateLabel(rangeStart);
+            const endStr = formatDateLabel(rangeEnd);
+            const yearStr = rangeEnd.getFullYear();
+
+            document.getElementById('date-range-display-text').textContent = `${startStr} – ${endStr}, ${yearStr}`;
+            document.getElementById('collapsed-dates-text').textContent = `${startStr} – ${endStr}, ${yearStr}`;
+            document.getElementById('total-days-badge').textContent = `${dateList.length} Days`;
+            document.getElementById('daily-breakdown-count-label').textContent = `${dateList.length} Calendar Days`;
+            document.getElementById('summary-total-absence').textContent = `Total Absence: ${dateList.length} Days`;
+
+            document.getElementById('expanded-calendar-widget').classList.add('hidden');
+            document.getElementById('collapsed-date-summary').classList.remove('hidden');
+
+            showDownstreamSections();
+            renderCards(dateList);
+        }
+
+        function openCalendarForEdit() {
+            document.getElementById('collapsed-date-summary').classList.add('hidden');
+            document.getElementById('expanded-calendar-widget').classList.remove('hidden');
+            rangeStart = null;
+            rangeEnd = null;
+            document.getElementById('date-range-display-text').textContent = "Select Start & End Date";
+            document.getElementById('total-days-badge').textContent = "-- Days";
+            hideDownstreamSections();
+            renderCalendar();
+        }
+
+        function hideDownstreamSections() {
+            document.getElementById('section-balances').classList.add('hidden');
+            document.getElementById('section-breakdown').classList.add('hidden');
+            document.getElementById('section-recap').classList.add('hidden');
+            document.getElementById('section-footer').classList.add('hidden');
+        }
+
+        function showDownstreamSections() {
+            document.getElementById('section-balances').classList.remove('hidden');
+            document.getElementById('section-breakdown').classList.remove('hidden');
+            document.getElementById('section-recap').classList.remove('hidden');
+            document.getElementById('section-footer').classList.remove('hidden');
+        }
+
+        function renderCards(dateList) {
+            const container = document.getElementById('daily-cards-container');
+            container.innerHTML = '';
+
+            dateList.forEach(item => {
+                const dateKey = item.dateKey;
+                const dayData = daysStore[dateKey];
+                const dayLabel = formatDateLabel(item.dateObj);
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/90 space-y-2.5 transition-all";
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-900">${dayLabel}</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            dayData.type === 'UNPAID' ? 'bg-slate-100 text-slate-500' : 'bg-brand-50 text-brand-700'
+                        }">
+                            ${dayData.type === 'UNPAID' ? 'Off / Unpaid' : 'Paid Absence'}
+                        </span>
+                    </div>
+
+                    <div class="relative">
+                        <select onchange="updatePayType('${dateKey}', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white appearance-none transition-all pr-8">
+                            <option value="PTO" ${dayData.type === 'PTO' ? 'selected' : ''}>PTO</option>
+                            <option value="PERSONAL" ${dayData.type === 'PERSONAL' ? 'selected' : ''}>PERSONAL</option>
+                            <option value="SICK" ${dayData.type === 'SICK' ? 'selected' : ''}>SICK</option>
+                            <option value="UNPAID" ${dayData.type === 'UNPAID' ? 'selected' : ''}>UNPAID TIME OFF</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                    </div>
+
+                    <div class="pt-0.5 flex items-center justify-between gap-2">
+                        <label class="flex items-center gap-1.5 cursor-pointer select-none shrink-0">
+                            <input type="checkbox" ${dayData.partial ? 'checked' : ''} onchange="togglePartialDay('${dateKey}', this.checked)" class="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 accent-brand-600">
+                            <span class="text-xs font-medium text-slate-600">Partial Day</span>
+                        </label>
+
+                        <div class="flex items-center gap-1.5 justify-end flex-1 min-w-0">
+                            ${dayData.partial ? `
+                                <div class="flex items-center gap-1 text-[11px] bg-slate-50 border border-slate-200 rounded-lg p-1">
+                                    <select onchange="updateTime('${dateKey}', 'start', this.value)" class="bg-transparent text-slate-700 font-semibold focus:outline-none text-[10px]">
+                                        ${timeOptions.map(t => `<option value="${t}" ${dayData.start === t ? 'selected' : ''}>${t.replace(':00', '')}</option>`).join('')}
+                                    </select>
+                                    <span class="text-slate-300 font-bold">-</span>
+                                    <select onchange="updateTime('${dateKey}', 'stop', this.value)" class="bg-transparent text-slate-700 font-semibold focus:outline-none text-[10px]">
+                                        ${timeOptions.map(t => `<option value="${t}" ${dayData.stop === t ? 'selected' : ''}>${t.replace(':00', '')}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+
+                            <div class="text-right shrink-0">
+                                <label class="text-[10px] font-medium text-slate-400 uppercase block leading-none mb-0.5">Hours</label>
+                                <input type="number" step="0.5" min="0" max="24" value="${dayData.hours}" ${dayData.partial ? 'readonly' : ''} onchange="updateCustomHours('${dateKey}', this.value)" class="w-16 text-right font-bold text-xs px-1.5 py-0.5 rounded border ${
+                                    dayData.partial ? 'bg-slate-100 text-slate-500 border-slate-200' : 'bg-white text-slate-900 border-slate-300 focus:ring-1 focus:ring-brand-500'
+                                }">
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            recalculateTotals(dateList);
+        }
+
+        function togglePartialDay(dateKey, isPartial) {
+            daysStore[dateKey].partial = isPartial;
+            if (isPartial) {
+                daysStore[dateKey].start = '10:00 AM';
+                daysStore[dateKey].stop = '02:00 PM';
+                calculateDayHours(dateKey);
+            } else {
+                daysStore[dateKey].hours = (daysStore[dateKey].type === 'UNPAID') ? 0.0 : STANDARD_SHIFT_HOURS;
+            }
+            refreshActiveRange();
+        }
+
+        function updatePayType(dateKey, type) {
+            daysStore[dateKey].type = type;
+            if (type === 'UNPAID') {
+                daysStore[dateKey].hours = 0.0;
+            } else {
+                if (daysStore[dateKey].partial) {
+                    calculateDayHours(dateKey);
+                } else {
+                    daysStore[dateKey].hours = STANDARD_SHIFT_HOURS;
+                }
+            }
+            refreshActiveRange();
+        }
+
+        function updateTime(dateKey, field, value) {
+            daysStore[dateKey][field] = value;
+            calculateDayHours(dateKey);
+            refreshActiveRange();
+        }
+
+        function updateCustomHours(dateKey, val) {
+            const hrs = parseFloat(val);
+            daysStore[dateKey].hours = isNaN(hrs) ? 0.0 : Math.max(0, hrs);
+            refreshActiveRange();
+        }
+
+        function calculateDayHours(dateKey) {
+            const day = daysStore[dateKey];
+            if (day.type === 'UNPAID') {
+                day.hours = 0.0;
+                return;
+            }
+            const parseTime = (timeStr) => {
+                const [time, modifier] = timeStr.split(' ');
+                let [hours] = time.split(':').map(Number);
+                if (modifier === 'PM' && hours < 12) hours += 12;
+                if (modifier === 'AM' && hours === 12) hours = 0;
+                return hours;
+            };
+
+            const startH = parseTime(day.start);
+            const stopH = parseTime(day.stop);
+            let diff = stopH - startH;
+            if (diff <= 0) diff = 1.0;
+            day.hours = parseFloat(diff.toFixed(1));
+        }
+
+        function refreshActiveRange() {
+            if (rangeStart && rangeEnd) {
+                handleDateRangeComplete();
+            }
+        }
+
+        function recalculateTotals(dateList) {
+            let charged = { PTO: 0.0, PERSONAL: 0.0, SICK: 0.0 };
+            let unpaidDays = 0;
+
+            dateList.forEach(item => {
+                const day = daysStore[item.dateKey];
+                if (charged[day.type] !== undefined) {
+                    charged[day.type] += day.hours;
+                } else if (day.type === 'UNPAID') {
+                    unpaidDays++;
+                }
+            });
+
+            const remPTO = INITIAL_BALANCES.PTO - charged.PTO;
+            const remPersonal = INITIAL_BALANCES.PERSONAL - charged.PERSONAL;
+            const remSick = INITIAL_BALANCES.SICK - charged.SICK;
+
+            document.getElementById('summary-pto-charged').textContent = `${charged.PTO.toFixed(1)} hrs`;
+            document.getElementById('summary-pto-rem').textContent = `(${remPTO.toFixed(2)} hrs remaining)`;
+
+            document.getElementById('summary-personal-charged').textContent = `${charged.PERSONAL.toFixed(1)} hrs`;
+            document.getElementById('summary-personal-rem').textContent = `(${remPersonal.toFixed(2)} hrs remaining)`;
+
+            document.getElementById('summary-sick-charged').textContent = `${charged.SICK.toFixed(1)} hrs`;
+            document.getElementById('summary-sick-rem').textContent = `(${remSick.toFixed(2)} hrs remaining)`;
+
+            document.getElementById('summary-unpaid-days').textContent = `${unpaidDays} Days`;
+
+            updateBadgeState('badge-pto', remPTO);
+            updateBadgeState('badge-personal', remPersonal);
+            updateBadgeState('badge-sick', remSick);
+        }
+
+        function updateBadgeState(badgeId, remaining) {
+            const badge = document.getElementById(badgeId);
+            if (remaining < 0) {
+                badge.className = "bg-rose-50 border border-rose-300 rounded-xl p-2 text-center text-rose-700 animate-pulse";
+            } else {
+                badge.className = "bg-slate-50 border border-slate-200 rounded-xl p-2 text-center text-slate-800";
+            }
+        }
+
+        function resetToDefaults() {
+            daysStore = {};
+            openCalendarForEdit();
+        }
+
+        function handleSubmit() {
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-sm"></i><span>Submitting...</span>`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.className = "w-full bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-full shadow-lg flex items-center justify-center gap-2 uppercase tracking-wider text-sm";
+                btn.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i><span>Request Submitted!</span>`;
+
+                setTimeout(() => {
+                    btn.className = "w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-slate-950 font-bold py-3.5 px-6 rounded-full shadow-lg shadow-accent-500/20 flex items-center justify-center gap-2 transition-all duration-150 uppercase tracking-wider text-sm";
+                    btn.innerHTML = `<span>Submit Request</span><i class="fa-solid fa-paper-plane text-xs"></i>`;
+                    btn.disabled = false;
+                }, 2500);
+            }, 1000);
+        }
+
+        // Initialize Page
+        window.onload = function() {
+            renderCalendar();
+            hideDownstreamSections();
+        };
+    </script>
+</body>
+</html>
