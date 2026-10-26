@@ -173,16 +173,16 @@
                     <div id="summary-pto-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
                         <span class="font-medium text-slate-700">PTO Charged:</span>
                         <div class="text-right">
-                            <span id="summary-pto-charged" class="font-bold text-slate-900">24.0 hrs</span>
-                            <span id="summary-pto-rem" class="text-[11px] text-slate-500 block">(16.0 hrs remaining)</span>
+                            <span id="summary-pto-charged" class="font-bold text-slate-900">0.0 hrs</span>
+                            <span id="summary-pto-rem" class="text-[11px] text-slate-500 block">(40.00 hrs remaining)</span>
                         </div>
                     </div>
 
                     <div id="summary-personal-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
                         <span class="font-medium text-slate-700">Personal Charged:</span>
                         <div class="text-right">
-                            <span id="summary-personal-charged" class="font-bold text-slate-900">12.0 hrs</span>
-                            <span id="summary-personal-rem" class="text-[11px] text-slate-500 block">(4.25 hrs remaining)</span>
+                            <span id="summary-personal-charged" class="font-bold text-slate-900">0.0 hrs</span>
+                            <span id="summary-personal-rem" class="text-[11px] text-slate-500 block">(16.25 hrs remaining)</span>
                         </div>
                     </div>
 
@@ -190,13 +190,13 @@
                         <span class="font-medium text-slate-700">Sick Charged:</span>
                         <div class="text-right">
                             <span id="summary-sick-charged" class="font-bold text-slate-900">0.0 hrs</span>
-                            <span id="summary-sick-rem" class="text-[11px] text-slate-500 block">(24.0 hrs remaining)</span>
+                            <span id="summary-sick-rem" class="text-[11px] text-slate-500 block">(24.00 hrs remaining)</span>
                         </div>
                     </div>
 
                     <div id="summary-unpaid-row" class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
                         <span class="font-medium text-slate-700">Unpaid / Regular Off:</span>
-                        <span id="summary-unpaid-days" class="font-bold text-slate-900">2 Days</span>
+                        <span id="summary-unpaid-days" class="font-bold text-slate-900">0 Days</span>
                     </div>
                 </div>
             </div>
@@ -307,15 +307,14 @@
                 const dateKey = curr.toISOString().split('T')[0];
                 dateList.push({ dateKey: dateKey, dateObj: new Date(curr) });
                 
+                // NO DEFAULTS: Initialize empty/unselected state for all days
                 if (!daysStore[dateKey]) {
-                    const dayOfWeek = curr.getDay();
-                    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
                     daysStore[dateKey] = {
-                        type: isWeekend ? 'UNPAID' : 'PTO',
+                        type: '', // Unselected
                         partial: false,
                         start: '08:00 AM',
                         stop: '05:00 PM',
-                        hours: isWeekend ? 0.0 : STANDARD_SHIFT_HOURS
+                        hours: 0.0 // Default 0.0h until selected
                     };
                 }
                 curr.setDate(curr.getDate() + 1);
@@ -372,21 +371,32 @@
                 const dayData = daysStore[dateKey];
                 const dayLabel = formatDateLabel(item.dateObj);
 
+                // Dynamic Badge Rendering
+                let badgeClass = "bg-amber-50 text-amber-700 border border-amber-200/60";
+                let badgeText = "Select Type";
+
+                if (dayData.type === 'UNPAID') {
+                    badgeClass = "bg-slate-100 text-slate-500";
+                    badgeText = "Off / Unpaid";
+                } else if (['PTO', 'PERSONAL', 'SICK'].includes(dayData.type)) {
+                    badgeClass = "bg-brand-50 text-brand-700 border border-brand-100";
+                    badgeText = "Paid Absence";
+                }
+
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/90 space-y-2.5 transition-all";
 
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-slate-900">${dayLabel}</span>
-                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                            dayData.type === 'UNPAID' ? 'bg-slate-100 text-slate-500' : 'bg-brand-50 text-brand-700'
-                        }">
-                            ${dayData.type === 'UNPAID' ? 'Off / Unpaid' : 'Paid Absence'}
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${badgeClass}">
+                            ${badgeText}
                         </span>
                     </div>
 
                     <div class="relative">
                         <select onchange="updatePayType('${dateKey}', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white appearance-none transition-all pr-8">
+                            <option value="" ${dayData.type === '' ? 'selected disabled' : ''}>-- Select Type --</option>
                             <option value="PTO" ${dayData.type === 'PTO' ? 'selected' : ''}>PTO</option>
                             <option value="PERSONAL" ${dayData.type === 'PERSONAL' ? 'selected' : ''}>PERSONAL</option>
                             <option value="SICK" ${dayData.type === 'SICK' ? 'selected' : ''}>SICK</option>
@@ -437,14 +447,14 @@
                 daysStore[dateKey].stop = '02:00 PM';
                 calculateDayHours(dateKey);
             } else {
-                daysStore[dateKey].hours = (daysStore[dateKey].type === 'UNPAID') ? 0.0 : STANDARD_SHIFT_HOURS;
+                daysStore[dateKey].hours = (daysStore[dateKey].type === '' || daysStore[dateKey].type === 'UNPAID') ? 0.0 : STANDARD_SHIFT_HOURS;
             }
             refreshActiveRange();
         }
 
         function updatePayType(dateKey, type) {
             daysStore[dateKey].type = type;
-            if (type === 'UNPAID') {
+            if (type === 'UNPAID' || type === '') {
                 daysStore[dateKey].hours = 0.0;
             } else {
                 if (daysStore[dateKey].partial) {
@@ -470,7 +480,7 @@
 
         function calculateDayHours(dateKey) {
             const day = daysStore[dateKey];
-            if (day.type === 'UNPAID') {
+            if (day.type === 'UNPAID' || day.type === '') {
                 day.hours = 0.0;
                 return;
             }
