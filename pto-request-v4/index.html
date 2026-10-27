@@ -58,7 +58,7 @@
         </div>
 
         <!-- App Header Bar -->
-        <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-20 shrink-0">
+        <div class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shadow-sm z-20 shrink-0">
             <button class="text-slate-600 hover:text-slate-900 text-sm font-medium flex items-center gap-1.5 transition-colors">
                 <i class="fa-solid fa-chevron-left text-xs"></i>
                 <span>Back</span>
@@ -69,34 +69,63 @@
             </button>
         </div>
 
-        <!-- Scrollable Content Viewport -->
-        <div id="scroll-container" class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3.5 pb-28">
+        <!-- Sticky Interactive Persona Switcher Bar -->
+        <div class="bg-slate-800 text-white p-2 px-3 flex items-center justify-between text-[11px] font-semibold shrink-0 z-20 shadow-md">
+            <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Active EE Profile:</span>
+            <div class="flex gap-1">
+                <button id="pbtn-has" onclick="switchPersona('has-accrual')" class="px-2 py-1 rounded-lg bg-brand-500 text-white transition-all text-[10px] font-bold shadow-sm">
+                    Accrual (Has Hrs)
+                </button>
+                <button id="pbtn-zero" onclick="switchPersona('zero-accrual')" class="px-2 py-1 rounded-lg text-slate-300 hover:bg-slate-700 transition-all text-[10px] font-bold">
+                    Accrual (0 Hrs)
+                </button>
+                <button id="pbtn-none" onclick="switchPersona('non-accrual')" class="px-2 py-1 rounded-lg text-slate-300 hover:bg-slate-700 transition-all text-[10px] font-bold">
+                    Non-Accrual
+                </button>
+            </div>
+        </div>
 
-            <!-- Card 1: Cleaned Single-Row Date Range Picker -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block mb-0.5">1. Date Range</span>
-                        <div class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                            <i class="fa-regular fa-calendar-days text-brand-500"></i>
-                            <span id="date-range-display-text">Select Start & End Date</span>
+        <!-- Scrollable Content Viewport -->
+        <div id="scroll-container" class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3 pb-28">
+
+            <!-- Card 1: Directional Stacked Date Range Picker -->
+            <div id="card-date-range" class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 transition-all">
+                
+                <!-- Collapsed Summary View -->
+                <div id="collapsed-date-summary" class="hidden flex items-center justify-between gap-2 cursor-pointer" onclick="openCalendarForEdit()">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-600 shrink-0">
+                            <i class="fa-regular fa-calendar-days text-xs"></i>
+                        </div>
+                        <div class="flex flex-col text-xs font-bold text-slate-900 leading-tight">
+                            <span id="date-start-text">Mon, Dec 28, 2026</span>
+                            <span class="text-[10px] text-slate-400 font-semibold my-[1px] flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-down-long text-[9px]"></i> to
+                            </span>
+                            <span id="date-end-text">Sun, Jan 3, 2027</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <span id="total-days-badge" class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full border border-brand-100">
-                            -- Days
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span id="total-days-badge" class="bg-slate-100 text-slate-700 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-slate-200/60">
+                            7 Days
                         </span>
-                        <button id="btn-change-date-inline" onclick="openCalendarForEdit()" class="hidden text-xs font-bold text-brand-600 hover:text-brand-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm transition-all">
+                        <button class="text-xs font-bold text-brand-600 hover:text-brand-700 bg-brand-50 border border-brand-100 px-2.5 py-1 rounded-lg transition-all">
                             Change
                         </button>
                     </div>
                 </div>
 
                 <!-- Expanded Inline Calendar Widget -->
-                <div id="expanded-calendar-widget" class="space-y-3 pt-1 border-t border-slate-100">
-                    <div class="flex justify-between items-center text-xs font-bold text-slate-800 px-1 pt-2">
+                <div id="expanded-calendar-widget" class="space-y-3">
+                    <div class="flex items-center justify-between pb-1 border-b border-slate-100">
+                        <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Select Start & End Date</span>
+                        <span id="total-days-badge-expanded" class="text-[11px] font-bold text-brand-600">-- Days</span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-800 px-1 pt-1">
                         <button onclick="changeMonth(-1)" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-chevron-left"></i></button>
-                        <span id="cal-month-title">November 2026</span>
+                        <span id="cal-month-title">December 2026</span>
                         <button onclick="changeMonth(1)" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
 
@@ -108,57 +137,56 @@
                 </div>
             </div>
 
-            <!-- Card 2: Available Accrual Balances -->
-            <div id="section-balances" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-2.5 transition-all">
-                <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block">Available Accrual Balances</span>
-                <div class="grid grid-cols-3 gap-1.5">
-                    <div id="badge-pto" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase block">PTO</span>
-                        <span id="bal-pto" class="text-xs font-bold text-slate-900">40.0h</span>
-                    </div>
-                    <div id="badge-personal" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase block">Personal</span>
-                        <span id="bal-personal" class="text-xs font-bold text-slate-900">16.25h</span>
-                    </div>
-                    <div id="badge-sick" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-center transition-all">
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase block">Sick</span>
-                        <span id="bal-sick" class="text-xs font-bold text-slate-900">24.0h</span>
+            <!-- Card 2: Available Balances (Contains integrated 0-Hours info banner when needed) -->
+            <div id="section-balances" class="hidden bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80 space-y-2 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-wallet text-slate-400"></i>
+                        Available Balances
+                    </span>
+                </div>
+
+                <!-- Wrapping Flex Pill Chips -->
+                <div id="accrual-chips-container" class="flex flex-wrap gap-1.5 pt-0.5"></div>
+
+                <!-- Integrated Info Banner for Accrual EE with 0 Hours -->
+                <div id="zero-hrs-integrated-note" class="hidden mt-2 bg-amber-50 border border-amber-200/80 rounded-xl p-2.5 text-xs text-amber-800 flex items-start gap-2">
+                    <i class="fa-solid fa-circle-info text-amber-600 mt-0.5 shrink-0"></i>
+                    <div>
+                        <span class="font-bold block">Unpaid Time Off Request</span>
+                        <span class="text-[11px] text-amber-700 font-normal leading-tight block mt-0.5">
+                            You currently have 0.0 hours in your available accrual balances. This request will be processed as Unpaid Time Off.
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <!-- Card 3: Setup Method & Hours -->
-            <div id="section-setup" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3 transition-all">
-                <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block">2. How are you taking this time off?</span>
+            <!-- Card 3: Pay Type Setup (Shown ONLY for Accrual EE with Hours) -->
+            <div id="section-setup" class="hidden bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 space-y-2 transition-all">
+                <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block leading-none">How should this time off be applied?</span>
+                
+                <div class="grid grid-cols-12 gap-2 items-center pt-0.5">
+                    <!-- Standard Daily Hours Input -->
+                    <div class="col-span-4">
+                        <label for="default-hours-per-day" class="text-[10px] font-semibold text-slate-500 block mb-0.5">Hrs / Day</label>
+                        <input type="number" id="default-hours-per-day" value="8.0" step="0.5" min="0" max="24" oninput="handleDefaultHoursChange(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
 
-                <!-- Single vs Mixed Segment Switcher -->
-                <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-xl gap-1 text-xs font-bold">
-                    <button id="btn-mode-single" onclick="setStrategyMode(false)" class="py-2 rounded-lg bg-white text-slate-900 shadow-sm transition-all">
-                        One type for all days
-                    </button>
-                    <button id="btn-mode-mix" onclick="setStrategyMode(true)" class="py-2 rounded-lg text-slate-500 hover:text-slate-900 transition-all">
-                        A mix of types
-                    </button>
-                </div>
-
-                <!-- Shared Default Hours per Charged Day -->
-                <div>
-                    <label for="default-hours-per-day" class="text-[11px] font-semibold text-slate-600 block mb-1">Standard Hours per Charged Day</label>
-                    <input type="number" id="default-hours-per-day" value="8.0" step="0.5" min="0" max="24" oninput="handleDefaultHoursChange(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                </div>
-
-                <!-- Single Pay Type Picker -->
-                <div id="single-type-wrapper">
-                    <label for="primary-pay-type" class="text-[11px] font-semibold text-slate-600 block mb-1">Select Time Off Type</label>
-                    <div class="relative">
-                        <select id="primary-pay-type" onchange="handleSingleTypeChange(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 appearance-none transition-all pr-8">
-                            <option value="" disabled selected>-- Select Type for All Days --</option>
-                            <option value="PTO">PTO (Vacation)</option>
-                            <option value="PERSONAL">Personal Time</option>
-                            <option value="SICK">Sick Time</option>
-                            <option value="UNPAID">Unpaid Time Off</option>
-                        </select>
-                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                    <!-- Single Pay Code Picker with Daily Customization Option -->
+                    <div class="col-span-8">
+                        <label for="primary-pay-type" class="text-[10px] font-semibold text-slate-500 block mb-0.5">Pay Type</label>
+                        <div class="relative">
+                            <select id="primary-pay-type" onchange="handleSingleTypeChange(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 appearance-none transition-all pr-7 truncate">
+                                <option value="" disabled selected>-- Select Type --</option>
+                                <option value="PTO">PTO (Vacation)</option>
+                                <option value="PERSONAL">Personal Time</option>
+                                <option value="SICK">Sick Time</option>
+                                <option value="FLOATING">Floating Holiday</option>
+                                <option value="UNPAID">Unpaid Time Off</option>
+                                <option value="MIXED" class="font-bold text-brand-600 bg-brand-50">-- Select Type Per Day --</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -167,10 +195,10 @@
             <div id="section-breakdown" class="hidden space-y-2.5 transition-all">
                 <div class="flex justify-between items-center px-1">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Daily Breakdown</span>
-                    <span id="daily-breakdown-count-label" class="text-[11px] text-slate-500 font-medium">7 Calendar Days</span>
+                    <span id="daily-breakdown-count-label" class="text-[11px] text-slate-500 font-medium">-- Calendar Days</span>
                 </div>
 
-                <div id="daily-cards-container" class="space-y-2.5"></div>
+                <div id="daily-cards-container" class="space-y-2"></div>
             </div>
 
             <!-- Request Recap Section -->
@@ -181,45 +209,16 @@
                         Request Recap
                     </span>
                     <span id="summary-total-absence" class="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                        Total Absence: 7 Days
+                        Total Absence: -- Days
                     </span>
                 </div>
 
-                <div class="space-y-2 text-xs">
-                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
-                        <span class="font-medium text-slate-700">PTO Charged:</span>
-                        <div class="text-right">
-                            <span id="summary-pto-charged" class="font-bold text-slate-900">0.0 hrs</span>
-                            <span id="summary-pto-rem" class="text-[11px] text-slate-500 block">(40.00 hrs remaining)</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
-                        <span class="font-medium text-slate-700">Personal Charged:</span>
-                        <div class="text-right">
-                            <span id="summary-personal-charged" class="font-bold text-slate-900">0.0 hrs</span>
-                            <span id="summary-personal-rem" class="text-[11px] text-slate-500 block">(16.25 hrs remaining)</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
-                        <span class="font-medium text-slate-700">Sick Charged:</span>
-                        <div class="text-right">
-                            <span id="summary-sick-charged" class="font-bold text-slate-900">0.0 hrs</span>
-                            <span id="summary-sick-rem" class="text-[11px] text-slate-500 block">(24.00 hrs remaining)</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
-                        <span class="font-medium text-slate-700">Unpaid / Regular Off:</span>
-                        <span id="summary-unpaid-days" class="font-bold text-slate-900">0 Days</span>
-                    </div>
-                </div>
+                <div id="recap-lines-container" class="space-y-2 text-xs"></div>
             </div>
 
         </div>
 
-        <!-- Sticky Footer with Submit Button -->
+        <!-- Sticky Footer -->
         <div id="section-footer" class="hidden absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200/80 p-4 shadow-lg z-30 transition-all">
             <button id="submit-btn" onclick="handleSubmit()" class="w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-slate-950 font-bold py-3.5 px-6 rounded-full shadow-lg shadow-accent-500/20 flex items-center justify-center gap-2 transition-all duration-150 uppercase tracking-wider text-sm">
                 <span>Submit Request</span>
@@ -229,14 +228,17 @@
 
     </div>
 
-    <!-- Application Logic Script -->
+    <!-- Script Logic -->
     <script>
-        const INITIAL_BALANCES = { PTO: 40.0, PERSONAL: 16.25, SICK: 24.0 };
+        let currentPersona = 'has-accrual';
+
+        const BALANCES_HAS = { PTO: 40.0, PERSONAL: 16.25, SICK: 24.0, FLOATING: 8.0 };
+        const BALANCES_ZERO = { PTO: 0.0, PERSONAL: 0.0, SICK: 0.0, FLOATING: 0.0 };
 
         let rangeStart = null;
         let rangeEnd = null;
         let currentCalYear = 2026;
-        let currentCalMonth = 10; // November
+        let currentCalMonth = 11; // December 2026
 
         let isMixMode = false;
         let daysStore = {};
@@ -248,6 +250,61 @@
 
         function formatDateLabel(dateObj) {
             return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
+        function switchPersona(pType) {
+            currentPersona = pType;
+
+            const btnHas = document.getElementById('pbtn-has');
+            const btnZero = document.getElementById('pbtn-zero');
+            const btnNone = document.getElementById('pbtn-none');
+
+            btnHas.className = "px-2 py-1 rounded-lg text-slate-300 hover:bg-slate-700 transition-all text-[10px] font-bold";
+            btnZero.className = "px-2 py-1 rounded-lg text-slate-300 hover:bg-slate-700 transition-all text-[10px] font-bold";
+            btnNone.className = "px-2 py-1 rounded-lg text-slate-300 hover:bg-slate-700 transition-all text-[10px] font-bold";
+
+            const balancesCard = document.getElementById('section-balances');
+            const setupCard = document.getElementById('section-setup');
+            const chipsContainer = document.getElementById('accrual-chips-container');
+            const zeroNote = document.getElementById('zero-hrs-integrated-note');
+
+            if (pType === 'has-accrual') {
+                btnHas.className = "px-2 py-1 rounded-lg bg-brand-500 text-white transition-all text-[10px] font-bold shadow-sm";
+                chipsContainer.innerHTML = `
+                    <span class="bg-slate-100 text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-500 font-medium">PTO:</span> 40.0h</span>
+                    <span class="bg-slate-100 text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-500 font-medium">Personal:</span> 16.25h</span>
+                    <span class="bg-slate-100 text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-500 font-medium">Sick:</span> 24.0h</span>
+                    <span class="bg-slate-100 text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-500 font-medium">Floating Hol:</span> 8.0h</span>
+                `;
+                zeroNote.classList.add('hidden');
+                
+                if (rangeStart && rangeEnd) {
+                    balancesCard.classList.remove('hidden');
+                    setupCard.classList.remove('hidden');
+                }
+            } else if (pType === 'zero-accrual') {
+                btnZero.className = "px-2 py-1 rounded-lg bg-amber-600 text-white transition-all text-[10px] font-bold shadow-sm";
+                chipsContainer.innerHTML = `
+                    <span class="bg-slate-100 text-slate-500 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-400 font-medium">PTO:</span> 0.0h</span>
+                    <span class="bg-slate-100 text-slate-500 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-400 font-medium">Personal:</span> 0.0h</span>
+                    <span class="bg-slate-100 text-slate-500 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-400 font-medium">Sick:</span> 0.0h</span>
+                    <span class="bg-slate-100 text-slate-500 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-400 font-medium">Floating Hol:</span> 0.0h</span>
+                `;
+                zeroNote.classList.remove('hidden');
+                setupCard.classList.add('hidden'); // Completely hide setup card for 0-hrs persona
+
+                if (rangeStart && rangeEnd) {
+                    balancesCard.classList.remove('hidden');
+                }
+            } else if (pType === 'non-accrual') {
+                btnNone.className = "px-2 py-1 rounded-lg bg-slate-600 text-white transition-all text-[10px] font-bold shadow-sm";
+                balancesCard.classList.add('hidden');
+                setupCard.classList.add('hidden');
+            }
+
+            if (rangeStart && rangeEnd) {
+                handleDateRangeComplete();
+            }
         }
 
         function renderCalendar() {
@@ -302,9 +359,7 @@
             if (!rangeStart || (rangeStart && rangeEnd)) {
                 rangeStart = clickedDate;
                 rangeEnd = null;
-                document.getElementById('date-range-display-text').textContent = "Select End Date";
-                document.getElementById('total-days-badge').textContent = "End Date?";
-                document.getElementById('btn-change-date-inline').classList.add('hidden');
+                document.getElementById('total-days-badge-expanded').textContent = "Pick End Date";
                 hideDownstreamSections();
             } else if (rangeStart && !rangeEnd) {
                 if (clickedDate < rangeStart) {
@@ -322,45 +377,54 @@
             let curr = new Date(rangeStart);
             while (curr <= rangeEnd) {
                 const dateKey = curr.toISOString().split('T')[0];
+                const defaultType = (currentPersona === 'has-accrual') ? '' : 'UNPAID';
+
                 daysStore[dateKey] = {
-                    type: '',
+                    type: defaultType,
                     partial: false,
                     start: '08:00 AM',
                     stop: '05:00 PM',
-                    hours: 0.0
+                    hours: defaultType === 'UNPAID' ? 0.0 : 8.0
                 };
                 curr.setDate(curr.getDate() + 1);
             }
 
-            const startStr = formatDateLabel(rangeStart);
-            const endStr = formatDateLabel(rangeEnd);
-            const yearStr = rangeEnd.getFullYear();
+            const startOpts = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            const startStr = rangeStart.toLocaleDateString('en-US', startOpts);
+            const endStr = rangeEnd.toLocaleDateString('en-US', startOpts);
             const dateCount = Object.keys(daysStore).length;
 
-            // Direct Single-Row Header Update
-            document.getElementById('date-range-display-text').textContent = `${startStr} – ${endStr}, ${yearStr}`;
+            document.getElementById('date-start-text').textContent = startStr;
+            document.getElementById('date-end-text').textContent = endStr;
             document.getElementById('total-days-badge').textContent = `${dateCount} Days`;
-            document.getElementById('btn-change-date-inline').classList.remove('hidden');
 
             document.getElementById('daily-breakdown-count-label').textContent = `${dateCount} Calendar Days`;
             document.getElementById('summary-total-absence').textContent = `Total Absence: ${dateCount} Days`;
 
-            // Collapse Calendar
             document.getElementById('expanded-calendar-widget').classList.add('hidden');
+            document.getElementById('collapsed-date-summary').classList.remove('hidden');
 
-            document.getElementById('section-balances').classList.remove('hidden');
-            document.getElementById('section-setup').classList.remove('hidden');
+            // Downstream display logic tailored per Persona
+            if (currentPersona === 'has-accrual') {
+                document.getElementById('section-balances').classList.remove('hidden');
+                document.getElementById('section-setup').classList.remove('hidden');
+            } else if (currentPersona === 'zero-accrual') {
+                document.getElementById('section-balances').classList.remove('hidden');
+                document.getElementById('section-setup').classList.add('hidden');
+            } else if (currentPersona === 'non-accrual') {
+                document.getElementById('section-balances').classList.add('hidden');
+                document.getElementById('section-setup').classList.add('hidden');
+            }
 
             checkShowBreakdown();
         }
 
         function openCalendarForEdit() {
             document.getElementById('expanded-calendar-widget').classList.remove('hidden');
-            document.getElementById('btn-change-date-inline').classList.add('hidden');
+            document.getElementById('collapsed-date-summary').classList.add('hidden');
             rangeStart = null;
             rangeEnd = null;
-            document.getElementById('date-range-display-text').textContent = "Select Start & End Date";
-            document.getElementById('total-days-badge').textContent = "-- Days";
+            document.getElementById('total-days-badge-expanded').textContent = "-- Days";
             hideDownstreamSections();
             renderCalendar();
         }
@@ -373,47 +437,29 @@
             document.getElementById('section-footer').classList.add('hidden');
         }
 
-        function setStrategyMode(isMix) {
-            isMixMode = isMix;
-            const btnSingle = document.getElementById('btn-mode-single');
-            const btnMix = document.getElementById('btn-mode-mix');
-            const wrapper = document.getElementById('single-type-wrapper');
-
-            if (isMix) {
-                btnMix.className = "py-2 rounded-lg bg-white text-slate-900 shadow-sm transition-all";
-                btnSingle.className = "py-2 rounded-lg text-slate-500 hover:text-slate-900 transition-all";
-                wrapper.classList.add('hidden');
-
+        function handleSingleTypeChange(typeVal) {
+            if (typeVal === 'MIXED') {
+                isMixMode = true;
                 Object.keys(daysStore).forEach(k => {
                     daysStore[k].type = '';
                     daysStore[k].hours = 0.0;
                 });
             } else {
-                btnSingle.className = "py-2 rounded-lg bg-white text-slate-900 shadow-sm transition-all";
-                btnMix.className = "py-2 rounded-lg text-slate-500 hover:text-slate-900 transition-all";
-                wrapper.classList.remove('hidden');
+                isMixMode = false;
+                const defaultHrs = parseFloat(document.getElementById('default-hours-per-day').value) || 8.0;
+                Object.keys(daysStore).forEach(k => {
+                    daysStore[k].type = typeVal;
+                    daysStore[k].hours = typeVal === 'UNPAID' ? 0.0 : defaultHrs;
+                });
             }
-
-            checkShowBreakdown();
-        }
-
-        function handleSingleTypeChange(typeVal) {
-            const defaultHrs = parseFloat(document.getElementById('default-hours-per-day').value) || 8.0;
-            
-            Object.keys(daysStore).forEach(k => {
-                daysStore[k].type = typeVal;
-                daysStore[k].hours = typeVal === 'UNPAID' ? 0.0 : defaultHrs;
-            });
-
             checkShowBreakdown();
         }
 
         function handleDefaultHoursChange(newHrsVal) {
             const newHrs = parseFloat(newHrsVal) || 8.0;
-            
             if (!isMixMode) {
                 const globalType = document.getElementById('primary-pay-type').value;
-                if (globalType && globalType !== 'UNPAID') {
+                if (globalType && globalType !== 'UNPAID' && globalType !== 'MIXED') {
                     Object.keys(daysStore).forEach(k => {
                         if (daysStore[k].type !== 'UNPAID' && !daysStore[k].partial) {
                             daysStore[k].hours = newHrs;
@@ -427,7 +473,16 @@
         function checkShowBreakdown() {
             if (!rangeStart || !rangeEnd) return;
 
-            if (isMixMode || (document.getElementById('primary-pay-type').value !== "")) {
+            if (currentPersona !== 'has-accrual') {
+                document.getElementById('section-breakdown').classList.remove('hidden');
+                document.getElementById('section-recap').classList.remove('hidden');
+                document.getElementById('section-footer').classList.remove('hidden');
+                refreshActiveCards();
+                return;
+            }
+
+            const primaryType = document.getElementById('primary-pay-type').value;
+            if (primaryType !== "") {
                 document.getElementById('section-breakdown').classList.remove('hidden');
                 document.getElementById('section-recap').classList.remove('hidden');
                 document.getElementById('section-footer').classList.remove('hidden');
@@ -448,6 +503,8 @@
             const container = document.getElementById('daily-cards-container');
             container.innerHTML = '';
 
+            const isNoAccrualUser = (currentPersona !== 'has-accrual');
+
             dateList.forEach(item => {
                 const dateKey = item.dateKey;
                 const dayData = daysStore[dateKey];
@@ -459,13 +516,13 @@
                 if (dayData.type === 'UNPAID') {
                     badgeClass = "bg-slate-100 text-slate-500";
                     badgeText = "Off / Unpaid";
-                } else if (['PTO', 'PERSONAL', 'SICK'].includes(dayData.type)) {
+                } else if (['PTO', 'PERSONAL', 'SICK', 'FLOATING'].includes(dayData.type)) {
                     badgeClass = "bg-brand-50 text-brand-700 border border-brand-100";
                     badgeText = "Paid Absence";
                 }
 
                 const card = document.createElement('div');
-                card.className = "bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/90 space-y-2.5 transition-all";
+                card.className = "bg-white rounded-2xl p-3 shadow-sm border border-slate-200/90 space-y-2 transition-all";
 
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
@@ -475,16 +532,19 @@
                         </span>
                     </div>
 
+                    ${!isNoAccrualUser ? `
                     <div class="relative">
-                        <select onchange="updatePayType('${dateKey}', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white appearance-none transition-all pr-8">
+                        <select onchange="updatePayType('${dateKey}', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 appearance-none transition-all pr-7">
                             <option value="" ${dayData.type === '' ? 'selected disabled' : ''}>-- Select Type --</option>
                             <option value="PTO" ${dayData.type === 'PTO' ? 'selected' : ''}>PTO</option>
                             <option value="PERSONAL" ${dayData.type === 'PERSONAL' ? 'selected' : ''}>PERSONAL</option>
                             <option value="SICK" ${dayData.type === 'SICK' ? 'selected' : ''}>SICK</option>
+                            <option value="FLOATING" ${dayData.type === 'FLOATING' ? 'selected' : ''}>FLOATING HOLIDAY</option>
                             <option value="UNPAID" ${dayData.type === 'UNPAID' ? 'selected' : ''}>UNPAID TIME OFF</option>
                         </select>
-                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                        <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
                     </div>
+                    ` : ''}
 
                     <div class="pt-0.5 flex items-center justify-between gap-2">
                         <label class="flex items-center gap-1.5 cursor-pointer select-none shrink-0">
@@ -505,12 +565,14 @@
                                 </div>
                             ` : ''}
 
+                            ${(!isNoAccrualUser && dayData.type !== 'UNPAID' && dayData.type !== '') ? `
                             <div class="text-right shrink-0">
-                                <label class="text-[10px] font-medium text-slate-400 uppercase block leading-none mb-0.5">Hours</label>
-                                <input type="number" step="0.5" min="0" max="24" value="${dayData.hours}" ${dayData.partial ? 'readonly' : ''} onchange="updateCustomHours('${dateKey}', this.value)" class="w-16 text-right font-bold text-xs px-1.5 py-0.5 rounded border ${
+                                <label class="text-[9px] font-bold text-slate-400 uppercase block leading-none mb-0.5">Hours</label>
+                                <input type="number" step="0.5" min="0" max="24" value="${dayData.hours}" ${dayData.partial ? 'readonly' : ''} onchange="updateCustomHours('${dateKey}', this.value)" class="w-14 text-right font-bold text-xs px-1.5 py-0.5 rounded border ${
                                     dayData.partial ? 'bg-slate-100 text-slate-500 border-slate-200' : 'bg-white text-slate-900 border-slate-300 focus:ring-1 focus:ring-brand-500'
                                 }">
                             </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -585,7 +647,7 @@
         }
 
         function recalculateTotals(dateList) {
-            let charged = { PTO: 0.0, PERSONAL: 0.0, SICK: 0.0 };
+            let charged = { PTO: 0.0, PERSONAL: 0.0, SICK: 0.0, FLOATING: 0.0 };
             let unpaidDays = 0;
 
             dateList.forEach(item => {
@@ -597,37 +659,52 @@
                 }
             });
 
-            const remPTO = INITIAL_BALANCES.PTO - charged.PTO;
-            const remPersonal = INITIAL_BALANCES.PERSONAL - charged.PERSONAL;
-            const remSick = INITIAL_BALANCES.SICK - charged.SICK;
-
-            document.getElementById('summary-pto-charged').textContent = `${charged.PTO.toFixed(1)} hrs`;
-            document.getElementById('summary-pto-rem').textContent = `(${remPTO.toFixed(2)} hrs remaining)`;
-
-            document.getElementById('summary-personal-charged').textContent = `${charged.PERSONAL.toFixed(1)} hrs`;
-            document.getElementById('summary-personal-rem').textContent = `(${remPersonal.toFixed(2)} hrs remaining)`;
-
-            document.getElementById('summary-sick-charged').textContent = `${charged.SICK.toFixed(1)} hrs`;
-            document.getElementById('summary-sick-rem').textContent = `(${remSick.toFixed(2)} hrs remaining)`;
-
-            document.getElementById('summary-unpaid-days').textContent = `${unpaidDays} Days`;
-
-            updateBadgeState('badge-pto', remPTO);
-            updateBadgeState('badge-personal', remPersonal);
-            updateBadgeState('badge-sick', remSick);
-        }
-
-        function updateBadgeState(badgeId, remaining) {
-            const badge = document.getElementById(badgeId);
-            if (remaining < 0) {
-                badge.className = "bg-rose-50 border border-rose-300 rounded-xl p-2 text-center text-rose-700 animate-pulse";
+            const recapContainer = document.getElementById('recap-lines-container');
+            
+            if (currentPersona === 'non-accrual') {
+                recapContainer.innerHTML = `
+                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Unpaid Absence:</span>
+                        <span class="font-bold text-slate-900">${dateList.length} Days</span>
+                    </div>
+                `;
             } else {
-                badge.className = "bg-slate-50 border border-slate-200 rounded-xl p-2 text-center text-slate-800";
+                const balances = (currentPersona === 'has-accrual') ? BALANCES_HAS : BALANCES_ZERO;
+                
+                recapContainer.innerHTML = `
+                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">PTO Charged:</span>
+                        <div class="text-right">
+                            <span class="font-bold text-slate-900">${charged.PTO.toFixed(1)} hrs</span>
+                            <span class="text-[11px] text-slate-500 block">(${(balances.PTO - charged.PTO).toFixed(2)} hrs rem.)</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Personal Charged:</span>
+                        <div class="text-right">
+                            <span class="font-bold text-slate-900">${charged.PERSONAL.toFixed(1)} hrs</span>
+                            <span class="text-[11px] text-slate-500 block">(${(balances.PERSONAL - charged.PERSONAL).toFixed(2)} hrs rem.)</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Sick Charged:</span>
+                        <div class="text-right">
+                            <span class="font-bold text-slate-900">${charged.SICK.toFixed(1)} hrs</span>
+                            <span class="text-[11px] text-slate-500 block">(${(balances.SICK - charged.SICK).toFixed(2)} hrs rem.)</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center py-1 px-2 rounded-lg bg-slate-50">
+                        <span class="font-medium text-slate-700">Unpaid / Regular Off:</span>
+                        <span class="font-bold text-slate-900">${unpaidDays} Days</span>
+                    </div>
+                `;
             }
         }
 
         function resetToDefaults() {
-            daysStore = {};
+            rangeStart = null;
+            rangeEnd = null;
+            document.getElementById('primary-pay-type').value = "";
             openCalendarForEdit();
         }
 
@@ -648,10 +725,11 @@
             }, 1000);
         }
 
-        // Page Load Initial State
+        // Initialize Page directly to Calendar Selection Screen
         window.onload = function() {
             renderCalendar();
             hideDownstreamSections();
+            switchPersona('has-accrual');
         };
     </script>
 </body>
