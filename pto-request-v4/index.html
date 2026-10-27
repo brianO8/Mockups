@@ -72,7 +72,7 @@
         <!-- Scrollable Content Viewport -->
         <div id="scroll-container" class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3.5 pb-28">
 
-            <!-- Card 1: Airline-Style Date Range Picker -->
+            <!-- Card 1: Cleaned Single-Row Date Range Picker -->
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
@@ -82,25 +82,19 @@
                             <span id="date-range-display-text">Select Start & End Date</span>
                         </div>
                     </div>
-                    <span id="total-days-badge" class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full border border-brand-100">
-                        -- Days
-                    </span>
-                </div>
-
-                <!-- Collapsed Summary Bar -->
-                <div id="collapsed-date-summary" class="hidden flex items-center justify-between bg-slate-50 border border-slate-200/80 p-2.5 rounded-xl cursor-pointer" onclick="openCalendarForEdit()">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check text-brand-500 text-sm"></i>
-                        <span id="collapsed-dates-text" class="text-xs font-bold text-slate-800">Nov 2 – Nov 8, 2026</span>
+                    <div class="flex items-center gap-1.5">
+                        <span id="total-days-badge" class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full border border-brand-100">
+                            -- Days
+                        </span>
+                        <button id="btn-change-date-inline" onclick="openCalendarForEdit()" class="hidden text-xs font-bold text-brand-600 hover:text-brand-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm transition-all">
+                            Change
+                        </button>
                     </div>
-                    <button class="text-xs font-bold text-brand-600 hover:text-brand-700 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm">
-                        Change
-                    </button>
                 </div>
 
                 <!-- Expanded Inline Calendar Widget -->
-                <div id="expanded-calendar-widget" class="space-y-3 pt-1">
-                    <div class="flex justify-between items-center text-xs font-bold text-slate-800 px-1">
+                <div id="expanded-calendar-widget" class="space-y-3 pt-1 border-t border-slate-100">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-800 px-1 pt-2">
                         <button onclick="changeMonth(-1)" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-chevron-left"></i></button>
                         <span id="cal-month-title">November 2026</span>
                         <button onclick="changeMonth(1)" class="text-slate-400 hover:text-slate-700 p-1"><i class="fa-solid fa-chevron-right"></i></button>
@@ -114,7 +108,7 @@
                 </div>
             </div>
 
-            <!-- Card 2: Available Accrual Balances (Revealed after dates) -->
+            <!-- Card 2: Available Accrual Balances -->
             <div id="section-balances" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-2.5 transition-all">
                 <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block">Available Accrual Balances</span>
                 <div class="grid grid-cols-3 gap-1.5">
@@ -133,7 +127,7 @@
                 </div>
             </div>
 
-            <!-- Card 3: Setup Method & Hours (Revealed after dates) -->
+            <!-- Card 3: Setup Method & Hours -->
             <div id="section-setup" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3 transition-all">
                 <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block">2. How are you taking this time off?</span>
 
@@ -169,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- Daily Breakdown Cards Stack (Revealed after answers) -->
+            <!-- Daily Breakdown Cards Stack -->
             <div id="section-breakdown" class="hidden space-y-2.5 transition-all">
                 <div class="flex justify-between items-center px-1">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Daily Breakdown</span>
@@ -179,7 +173,7 @@
                 <div id="daily-cards-container" class="space-y-2.5"></div>
             </div>
 
-            <!-- Request Recap Section (Revealed with breakdown) -->
+            <!-- Request Recap Section -->
             <div id="section-recap" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3 transition-all">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
@@ -310,6 +304,7 @@
                 rangeEnd = null;
                 document.getElementById('date-range-display-text').textContent = "Select End Date";
                 document.getElementById('total-days-badge').textContent = "End Date?";
+                document.getElementById('btn-change-date-inline').classList.add('hidden');
                 hideDownstreamSections();
             } else if (rangeStart && !rangeEnd) {
                 if (clickedDate < rangeStart) {
@@ -342,14 +337,16 @@
             const yearStr = rangeEnd.getFullYear();
             const dateCount = Object.keys(daysStore).length;
 
+            // Direct Single-Row Header Update
             document.getElementById('date-range-display-text').textContent = `${startStr} – ${endStr}, ${yearStr}`;
-            document.getElementById('collapsed-dates-text').textContent = `${startStr} – ${endStr}, ${yearStr}`;
             document.getElementById('total-days-badge').textContent = `${dateCount} Days`;
+            document.getElementById('btn-change-date-inline').classList.remove('hidden');
+
             document.getElementById('daily-breakdown-count-label').textContent = `${dateCount} Calendar Days`;
             document.getElementById('summary-total-absence').textContent = `Total Absence: ${dateCount} Days`;
 
+            // Collapse Calendar
             document.getElementById('expanded-calendar-widget').classList.add('hidden');
-            document.getElementById('collapsed-date-summary').classList.remove('hidden');
 
             document.getElementById('section-balances').classList.remove('hidden');
             document.getElementById('section-setup').classList.remove('hidden');
@@ -358,8 +355,8 @@
         }
 
         function openCalendarForEdit() {
-            document.getElementById('collapsed-date-summary').classList.add('hidden');
             document.getElementById('expanded-calendar-widget').classList.remove('hidden');
+            document.getElementById('btn-change-date-inline').classList.add('hidden');
             rangeStart = null;
             rangeEnd = null;
             document.getElementById('date-range-display-text').textContent = "Select Start & End Date";
@@ -387,7 +384,6 @@
                 btnSingle.className = "py-2 rounded-lg text-slate-500 hover:text-slate-900 transition-all";
                 wrapper.classList.add('hidden');
 
-                // Clear single pay code defaults when switching to mixed
                 Object.keys(daysStore).forEach(k => {
                     daysStore[k].type = '';
                     daysStore[k].hours = 0.0;
@@ -525,7 +521,6 @@
             recalculateTotals(dateList);
         }
 
-        // AUTO-ASSIGN HOURS ON CARD SELECTION IN MIXED MODE
         function updatePayType(dateKey, type) {
             daysStore[dateKey].type = type;
             const defaultHrs = parseFloat(document.getElementById('default-hours-per-day').value) || 8.0;
@@ -536,7 +531,6 @@
                 if (daysStore[dateKey].partial) {
                     calculateDayHours(dateKey);
                 } else {
-                    // Auto-assign default hours per day as pay code is picked
                     daysStore[dateKey].hours = defaultHrs;
                 }
             }
