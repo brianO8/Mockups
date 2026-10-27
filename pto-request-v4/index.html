@@ -137,7 +137,7 @@
                 </div>
             </div>
 
-            <!-- Card 2: Available Balances (Contains integrated 0-Hours info banner when needed) -->
+            <!-- Card 2: Available Balances -->
             <div id="section-balances" class="hidden bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80 space-y-2 transition-all">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
@@ -161,7 +161,7 @@
                 </div>
             </div>
 
-            <!-- Card 3: Pay Type Setup (Shown ONLY for Accrual EE with Hours) -->
+            <!-- Card 3: Pay Type Setup (Defaulted to '-- Select Type --') -->
             <div id="section-setup" class="hidden bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 space-y-2 transition-all">
                 <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase block leading-none">How should this time off be applied?</span>
                 
@@ -172,18 +172,18 @@
                         <input type="number" id="default-hours-per-day" value="8.0" step="0.5" min="0" max="24" oninput="handleDefaultHoursChange(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
 
-                    <!-- Single Pay Code Picker with Daily Customization Option -->
+                    <!-- Single Pay Code Picker (Defaulted to placeholder '-- Select Type --') -->
                     <div class="col-span-8">
                         <label for="primary-pay-type" class="text-[10px] font-semibold text-slate-500 block mb-0.5">Pay Type</label>
                         <div class="relative">
                             <select id="primary-pay-type" onchange="handleSingleTypeChange(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 appearance-none transition-all pr-7 truncate">
                                 <option value="" disabled selected>-- Select Type --</option>
+                                <option value="MIXED" class="font-bold text-brand-600 bg-brand-50">-- Select Type Per Day --</option>
                                 <option value="PTO">PTO (Vacation)</option>
                                 <option value="PERSONAL">Personal Time</option>
                                 <option value="SICK">Sick Time</option>
                                 <option value="FLOATING">Floating Holiday</option>
                                 <option value="UNPAID">Unpaid Time Off</option>
-                                <option value="MIXED" class="font-bold text-brand-600 bg-brand-50">-- Select Type Per Day --</option>
                             </select>
                             <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
                         </div>
@@ -291,7 +291,7 @@
                     <span class="bg-slate-100 text-slate-500 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200/70 flex items-center gap-1.5"><span class="text-slate-400 font-medium">Floating Hol:</span> 0.0h</span>
                 `;
                 zeroNote.classList.remove('hidden');
-                setupCard.classList.add('hidden'); // Completely hide setup card for 0-hrs persona
+                setupCard.classList.add('hidden');
 
                 if (rangeStart && rangeEnd) {
                     balancesCard.classList.remove('hidden');
@@ -404,7 +404,6 @@
             document.getElementById('expanded-calendar-widget').classList.add('hidden');
             document.getElementById('collapsed-date-summary').classList.remove('hidden');
 
-            // Downstream display logic tailored per Persona
             if (currentPersona === 'has-accrual') {
                 document.getElementById('section-balances').classList.remove('hidden');
                 document.getElementById('section-setup').classList.remove('hidden');
